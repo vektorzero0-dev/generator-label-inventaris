@@ -66,20 +66,19 @@
   <!-- KONTEN UTAMA: GRID 2 KOLOM -->
   <main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-    <!-- KOLOM KIRI: FORM INPUT LENGKAP & CEPAT (Lebar 5 Kolom) -->
+    <!-- KOLOM KIRI: FORM INPUT LENGKAP -->
     <section class="no-print lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4">
       <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
         <h2 class="text-xs font-extrabold text-emerald-900 uppercase tracking-wider">Form Pembuatan Label BMD</h2>
         <div class="flex gap-1">
-          <button type="button" onclick="setInstansi('SDN 1 Kalianda')" class="text-[10px] px-2 py-0.5 bg-slate-100 hover:bg-emerald-50 text-slate-700 rounded font-medium">Sekolah</button>
-          <button type="button" onclick="setInstansi('Kantor Camat Natar')" class="text-[10px] px-2 py-0.5 bg-slate-100 hover:bg-emerald-50 text-slate-700 rounded font-medium">Kecamatan</button>
+          <button type="button" onclick="setInstansi('UPTD SDN 1 KARYA MULYA SARI')" class="text-[10px] px-2 py-0.5 bg-slate-100 hover:bg-emerald-50 text-slate-700 rounded font-medium">Reset Nama Sekolah</button>
         </div>
       </div>
 
       <!-- 1. Identitas OPD / Sekolah -->
       <div class="space-y-2">
         <label class="block text-xs font-bold text-slate-700">Nama Instansi / Sekolah / OPD</label>
-        <input type="text" id="input-opd" value="SDN 1 Kalianda" oninput="updatePreview()" class="w-full px-3 py-2 text-xs font-semibold border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 outline-none" />
+        <input type="text" id="input-opd" value="UPTD SDN 1 KARYA MULYA SARI" oninput="updatePreview()" class="w-full px-3 py-2 text-xs font-semibold border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 outline-none" />
       </div>
 
       <!-- 2. Pengkodean BMD & Kecamatan -->
@@ -89,7 +88,7 @@
           <select id="select-kecamatan" onchange="generateKode()" class="w-full px-2.5 py-2 text-xs border border-slate-300 rounded-lg bg-white">
             <option value="04">04 - Natar</option>
             <option value="05">05 - Tanjung Bintang</option>
-            <option value="06" selected>06 - Kalianda</option>
+            <option value="06">06 - Kalianda</option>
             <option value="07">07 - Sidomulyo</option>
             <option value="08">08 - Katibung</option>
             <option value="09">09 - Penengahan</option>
@@ -98,7 +97,7 @@
             <option value="12">12 - Ketapang</option>
             <option value="13">13 - Sragi</option>
             <option value="14">14 - Raja Basa</option>
-            <option value="15">15 - Candipuro</option>
+            <option value="15" selected>15 - Candipuro</option>
             <option value="16">16 - Merbau Mataram</option>
             <option value="17">17 - Bakauheni</option>
             <option value="18">18 - Tanjung Sari</option>
@@ -133,16 +132,16 @@
       <!-- Hasil Kode Final -->
       <div class="bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg">
         <label class="text-[10px] font-bold text-emerald-800 uppercase block mb-1">Kode BMD Final (Otomatis)</label>
-        <input type="text" id="input-kode-final" value="18.01.06-LP-001" oninput="updatePreview()" class="w-full px-3 py-1.5 text-xs font-mono-code font-bold bg-white border border-emerald-400 rounded text-emerald-950" />
+        <input type="text" id="input-kode-final" value="18.01.15-LP-001" oninput="updatePreview()" class="w-full px-3 py-1.5 text-xs font-mono-code font-bold bg-white border border-emerald-400 rounded text-emerald-950" />
       </div>
 
       <!-- 4. Nama Barang Spesifik -->
       <div>
         <label class="block text-xs font-bold text-slate-700 mb-1">Nama / Merk Barang</label>
-        <input type="text" id="input-nama-barang" value="Laptop Lenovo ThinkPad" oninput="updatePreview()" class="w-full px-3 py-2 text-xs font-semibold border border-slate-300 rounded-lg" />
+        <input type="text" id="input-nama-barang" value="Laptop Zyrex Bantuan" oninput="updatePreview()" class="w-full px-3 py-2 text-xs font-semibold border border-slate-300 rounded-lg" />
       </div>
 
-      <!-- 5. Tahun, Kondisi, Lokasi -->
+      <!-- 5. Tahun, Kondisi, Lokasi, Sumber Dana -->
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Tahun Perolehan</label>
@@ -161,16 +160,29 @@
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Lokasi / Ruangan</label>
-          <input type="text" id="input-lokasi" value="Lab Komputer" oninput="updatePreview()" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg" />
+          <input type="text" id="input-lokasi" value="Ruang Guru / Lab" oninput="updatePreview()" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg" />
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Sumber Dana</label>
           <select id="select-dana" onchange="updatePreview()" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white">
-            <option value="Dana BOS" selected>Dana BOS</option>
-            <option value="APBD">APBD Lamsel</option>
-            <option value="Dana Desa">Dana Desa</option>
+            <option value="DAK Fisik" selected>DAK Fisik Pendidikan</option>
+            <option value="Bantuan Pusat / Digitalisasi">Bantuan Pemerintah Pusat</option>
+            <option value="Dana BOS">Dana BOS Reguler</option>
+            <option value="Dana BOS Afirmasi">Dana BOS Afirmasi</option>
+            <option value="APBD Lamsel">APBD Kab. Lamsel</option>
+            <option value="Dana Desa">Dana Desa (DD)</option>
+            <option value="Hibah / Lainnya">Hibah / Lainnya</option>
           </select>
         </div>
+      </div>
+
+      <!-- Format Label -->
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Model / Format Label</label>
+        <select id="select-format" onchange="updatePreview()" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white">
+          <option value="standard" selected>Format Standar BMD (Dengan QR Code)</option>
+          <option value="simple">Format Label Sederhana (Ringkas Teks)</option>
+        </select>
       </div>
 
       <!-- Tombol Tambah ke Antrean -->
@@ -179,7 +191,7 @@
       </button>
     </section>
 
-    <!-- KOLOM KANAN: LIVE PREVIEW & DAFTAR ANTREAN (Lebar 7 Kolom) -->
+    <!-- KOLOM KANAN: LIVE PREVIEW & DAFTAR ANTREAN -->
     <section class="lg:col-span-7 space-y-6">
 
       <!-- Live Preview Card -->
@@ -217,9 +229,8 @@
   </main>
 
   <script>
-    let labelQueue = JSON.parse(localStorage.getItem('bmd_queue_v2')) || [
-      { id: 1, opd: 'SDN 1 Kalianda', kode: '18.01.06-LP-001', nama: 'Laptop Lenovo ThinkPad', tahun: '2024', kondisi: 'Baik', lokasi: 'Lab Komputer', dana: 'Dana BOS' },
-      { id: 2, opd: 'SDN 1 Kalianda', kode: '18.01.06-PR-001', nama: 'Printer Epson L3210', tahun: '2024', kondisi: 'Baik', lokasi: 'Ruang TU', dana: 'Dana BOS' }
+    let labelQueue = JSON.parse(localStorage.getItem('bmd_queue_v3')) || [
+      { id: 1, opd: 'UPTD SDN 1 KARYA MULYA SARI', kode: '18.01.15-LP-001', nama: 'Laptop Zyrex Bantuan', tahun: '2024', kondisi: 'Baik', lokasi: 'Ruang Guru', dana: 'DAK Fisik' }
     ];
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -227,7 +238,7 @@
       renderAll();
     });
 
-    function setInstansi( nama ) {
+    function setInstansi(nama) {
       document.getElementById('input-opd').value = nama;
       updatePreview();
     }
@@ -258,13 +269,14 @@
 
     function getData() {
       return {
-        opd: document.getElementById('input-opd').value.trim() || 'SDN 1 Kalianda',
-        kode: document.getElementById('input-kode-final').value.trim() || '18.01.06-LP-001',
+        opd: document.getElementById('input-opd').value.trim() || 'UPTD SDN 1 KARYA MULYA SARI',
+        kode: document.getElementById('input-kode-final').value.trim() || '18.01.15-LP-001',
         nama: document.getElementById('input-nama-barang').value.trim() || 'Barang',
         tahun: document.getElementById('input-tahun').value.trim() || '2024',
         kondisi: document.getElementById('select-kondisi').value,
         lokasi: document.getElementById('input-lokasi').value.trim() || '-',
-        dana: document.getElementById('select-dana').value
+        dana: document.getElementById('select-dana').value,
+        format: document.getElementById('select-format').value
       };
     }
 
@@ -278,38 +290,58 @@
       if(item.kondisi === 'Rusak Ringan') badgeStyle = 'background:#fef9c3;color:#854d0e;';
       if(item.kondisi === 'Rusak Berat') badgeStyle = 'background:#fee2e2;color:#991b1b;';
 
-      card.innerHTML = `
-        <div style="background:#064e3b;color:#ffffff;padding:4px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:1.5px solid #fbbf24;">
-          <div style="line-height:1.1;">
+      if (item.format === 'simple') {
+        // FORMAT LABEL SEDERHANA
+        card.innerHTML = `
+          <div style="background:#064e3b;color:#ffffff;padding:4px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:1.5px solid #fbbf24;">
             <div style="font-size:9px;font-weight:800;text-transform:uppercase;">PEMKAB LAMPUNG SELATAN</div>
-            <div style="font-size:8px;font-weight:600;color:#fde68a;">${escapeHtml(item.opd)}</div>
+            <div style="font-size:7.5px;font-weight:800;background:#fbbf24;color:#064e3b;padding:1px 4px;border-radius:2px;">INVENTARIS</div>
           </div>
-          <div style="font-size:7px;font-weight:800;background:#fbbf24;color:#064e3b;padding:1px 4px;border-radius:2px;">BMD 18.01</div>
-        </div>
-        <div style="flex:1;padding:5px 8px;display:flex;align-items:center;justify-content:space-between;gap:6px;overflow:hidden;">
-          <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2.5px;">
-            <div style="background:#f1f5f9;border:1px solid #cbd5e1;padding:1.5px 4px;border-radius:2px;">
-              <div style="font-size:6.5px;color:#475569;font-weight:700;">KODE BARANG</div>
-              <div class="font-mono-code" style="font-size:10px;font-weight:800;color:#0f172a;">${escapeHtml(item.kode)}</div>
+          <div style="flex:1;padding:6px 10px;display:flex;flex-direction:column;justify-content:center;gap:3px;">
+            <div style="font-size:8.5px;font-weight:700;color:#334155;text-transform:uppercase;">${escapeHtml(item.opd)}</div>
+            <div style="font-size:11px;font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.nama)}</div>
+            <div class="font-mono-code" style="font-size:10.5px;font-weight:800;color:#064e3b;">Kode: ${escapeHtml(item.kode)}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:8px;font-weight:600;color:#475569;margin-top:2px;">
+              <span>Tahun: <b>${escapeHtml(item.tahun)}</b> • Lokasi: <b>${escapeHtml(item.lokasi)}</b></span>
+              <span style="${badgeStyle}padding:0 4px;border-radius:2px;">${escapeHtml(item.kondisi)}</span>
             </div>
-            <div style="font-size:10.5px;font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.nama)}</div>
-            <div style="display:flex;align-items:center;gap:4px;font-size:8px;font-weight:600;color:#334155;">
-              <span>Thn: <b>${escapeHtml(item.tahun)}</b></span> | 
-              <span style="${badgeStyle}padding:0 3px;border-radius:2px;font-weight:700;">${escapeHtml(item.kondisi)}</span>
-            </div>
-            <div style="font-size:7.5px;color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Lok: <b>${escapeHtml(item.lokasi)}</b> • ${escapeHtml(item.dana)}</div>
           </div>
-          <div id="qr-${uid}" style="shrink:0;"></div>
-        </div>
-      `;
+        `;
+      } else {
+        // FORMAT STANDAR BMD DENGAN QR CODE
+        card.innerHTML = `
+          <div style="background:#064e3b;color:#ffffff;padding:4px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:1.5px solid #fbbf24;">
+            <div style="line-height:1.1;">
+              <div style="font-size:9px;font-weight:800;text-transform:uppercase;">PEMKAB LAMPUNG SELATAN</div>
+              <div style="font-size:8px;font-weight:600;color:#fde68a;">${escapeHtml(item.opd)}</div>
+            </div>
+            <div style="font-size:7px;font-weight:800;background:#fbbf24;color:#064e3b;padding:1px 4px;border-radius:2px;">BMD 18.01</div>
+          </div>
+          <div style="flex:1;padding:5px 8px;display:flex;align-items:center;justify-content:space-between;gap:6px;overflow:hidden;">
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2.5px;">
+              <div style="background:#f1f5f9;border:1px solid #cbd5e1;padding:1.5px 4px;border-radius:2px;">
+                <div style="font-size:6.5px;color:#475569;font-weight:700;">KODE BARANG</div>
+                <div class="font-mono-code" style="font-size:10px;font-weight:800;color:#0f172a;">${escapeHtml(item.kode)}</div>
+              </div>
+              <div style="font-size:10.5px;font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.nama)}</div>
+              <div style="display:flex;align-items:center;gap:4px;font-size:8px;font-weight:600;color:#334155;">
+                <span>Thn: <b>${escapeHtml(item.tahun)}</b></span> | 
+                <span style="${badgeStyle}padding:0 3px;border-radius:2px;font-weight:700;">${escapeHtml(item.kondisi)}</span>
+              </div>
+              <div style="font-size:7.5px;color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Lok: <b>${escapeHtml(item.lokasi)}</b> • ${escapeHtml(item.dana)}</div>
+            </div>
+            <div id="qr-${uid}" style="shrink:0;"></div>
+          </div>
+        `;
 
-      setTimeout(() => {
-        const el = document.getElementById(`qr-${uid}`);
-        if(el) {
-          const payload = `PEMKAB LAMPUNG SELATAN\nUnit: ${item.opd}\nKode: ${item.kode}\nBarang: ${item.nama}\nTahun: ${item.tahun} | Kondisi: ${item.kondisi}\nLokasi: ${item.lokasi}`;
-          new QRCode(el, { text: payload, width: 56, height: 56, colorDark: '#0f172a', colorLight: '#ffffff' });
-        }
-      }, 0);
+        setTimeout(() => {
+          const el = document.getElementById(`qr-${uid}`);
+          if(el) {
+            const payload = `PEMKAB LAMPUNG SELATAN\nUnit: ${item.opd}\nKode: ${item.kode}\nBarang: ${item.nama}\nTahun: ${item.tahun} | Kondisi: ${item.kondisi}\nLokasi: ${item.lokasi}\nSumber Dana: ${item.dana}`;
+            new QRCode(el, { text: payload, width: 54, height: 54, colorDark: '#0f172a', colorLight: '#ffffff' });
+          }
+        }, 0);
+      }
 
       return card;
     }
@@ -337,7 +369,7 @@
     }
 
     function saveAndRender() {
-      localStorage.setItem('bmd_queue_v2', JSON.stringify(labelQueue));
+      localStorage.setItem('bmd_queue_v3', JSON.stringify(labelQueue));
       renderAll();
     }
 
@@ -355,7 +387,7 @@
             <div>
               <div class="font-mono-code font-bold text-emerald-900">${escapeHtml(item.kode)}</div>
               <div class="font-semibold text-slate-800">${escapeHtml(item.nama)} <span class="text-slate-400 font-normal">(${item.tahun} - ${item.kondisi})</span></div>
-              <div class="text-[10px] text-slate-500">${escapeHtml(item.opd)} • ${escapeHtml(item.lokasi)}</div>
+              <div class="text-[10px] text-slate-500">${escapeHtml(item.opd)} • ${escapeHtml(item.lokasi)} • ${escapeHtml(item.dana)}</div>
             </div>
             <button onclick="removeFromQueue(${idx})" class="px-2 py-1 bg-red-50 text-red-600 font-bold rounded hover:bg-red-100">✕</button>
           </div>
@@ -373,7 +405,7 @@
       if(labelQueue.length === 0) return alert('Kosong');
       const csv = 'OPD,Kode,Barang,Tahun,Kondisi,Lokasi,Dana\n' + labelQueue.map(i => `"${i.opd}","${i.kode}","${i.nama}","${i.tahun}","${i.kondisi}","${i.lokasi}","${i.dana}"`).join('\n');
       const blob = new Blob([csv], { type: 'text/csv' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'label-bmd.csv'; a.click();
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'label-bmd-lamsel.csv'; a.click();
     }
 
     function escapeHtml(str) {
