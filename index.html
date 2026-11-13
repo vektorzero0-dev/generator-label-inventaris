@@ -41,7 +41,6 @@
   <header class="no-print bg-emerald-900 text-white shadow sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-3">
-        <!-- Logo Vektor Pemkab Lampung Selatan -->
         <div class="w-10 h-10 rounded-lg bg-amber-400 text-emerald-950 flex items-center justify-center font-black shadow-inner border border-amber-300">
           <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4zm0 3.18l6 2.67v4.15c0 4.22-2.78 8.16-6 9.33-3.22-1.17-6-5.11-6-9.33V7.85l6-2.67zM12 8a3.5 3.5 0 100 7 3.5 3.5 0 000-7z"/>
@@ -72,7 +71,7 @@
     <!-- KOLOM KIRI: FORM INPUT -->
     <section class="no-print lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3.5">
       <div class="border-b border-slate-100 pb-2.5 flex items-center justify-between">
-        <h2 class="text-xs font-extrabold text-emerald-900 uppercase tracking-wider">Pengaturan & Input Barang</h2>
+        <h2 class="text-xs font-extrabold text-emerald-900 uppercase tracking-wider">Pengaturan & Input Barang Masal</h2>
         <button type="button" onclick="setInstansi('UPTD SDN 1 KARYA MULYA SARI')" class="text-[10px] px-2 py-0.5 bg-slate-100 hover:bg-emerald-50 text-slate-700 rounded font-medium">Reset Sekolah</button>
       </div>
 
@@ -95,7 +94,7 @@
         </div>
       </div>
 
-      <!-- 3. Kecamatan & Nomor Urut -->
+      <!-- 3. Kecamatan & Nomor Urut Awal -->
       <div class="grid grid-cols-2 gap-2.5">
         <div id="wrap-kecamatan">
           <label class="block text-xs font-bold text-slate-700 mb-1">Kecamatan Lamsel</label>
@@ -120,7 +119,7 @@
           </select>
         </div>
         <div id="wrap-urut">
-          <label class="block text-xs font-bold text-slate-700 mb-1">No. Urut / Register</label>
+          <label class="block text-xs font-bold text-slate-700 mb-1">No. Urut Mulai</label>
           <div class="flex gap-1">
             <input type="number" id="input-urut" value="1" min="1" max="9999" oninput="generateKode()" class="w-full px-2 py-1.5 text-xs font-bold border border-slate-300 rounded-lg text-center" />
             <button type="button" onclick="incrementUrut()" class="px-2 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-xs font-bold rounded-lg">+1</button>
@@ -144,20 +143,20 @@
         </select>
       </div>
 
-      <!-- Kode Final -->
+      <!-- Kode Final Preview -->
       <div class="bg-emerald-50 border border-emerald-200 p-2 rounded-lg">
         <div class="flex justify-between items-center mb-1">
-          <label class="text-[10px] font-bold text-emerald-800 uppercase">Kode BMD Terbentuk</label>
+          <label class="text-[10px] font-bold text-emerald-800 uppercase">Contoh Kode BMD Pertama</label>
           <span id="kode-mode-badge" class="text-[10px] font-semibold text-emerald-700">Format Sederhana</span>
         </div>
-        <input type="text" id="input-kode-final" value="18.01.15-LP-001" oninput="updatePreview()" class="w-full px-2.5 py-1 text-xs font-mono-code font-bold bg-white border border-emerald-400 rounded text-emerald-950" />
+        <input type="text" id="input-kode-final" value="18.01.15-LP-001" readonly class="w-full px-2.5 py-1 text-xs font-mono-code font-bold bg-white border border-emerald-400 rounded text-emerald-950" />
       </div>
 
-      <!-- 5. Nama Barang & Tahun -->
+      <!-- 5. Nama Barang, Tahun & Jumlah Cetak Massal (QTY) -->
       <div class="grid grid-cols-3 gap-2.5">
         <div class="col-span-2">
           <label class="block text-xs font-bold text-slate-700 mb-1">Nama / Merk Barang</label>
-          <input type="text" id="input-nama-barang" value="Laptop Zyrex Bantuan" oninput="updatePreview()" class="w-full px-3 py-1.5 text-xs font-semibold border border-slate-300 rounded-lg" />
+          <input type="text" id="input-nama-barang" value="Kursi Siswa Kayu" oninput="updatePreview()" class="w-full px-3 py-1.5 text-xs font-semibold border border-slate-300 rounded-lg" />
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Tahun</label>
@@ -165,8 +164,11 @@
         </div>
       </div>
 
-      <!-- 6. Kondisi & Sumber Dana -->
-      <div class="grid grid-cols-2 gap-2.5">
+      <div class="grid grid-cols-2 gap-2.5 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
+        <div>
+          <label class="block text-xs font-bold text-amber-900 mb-1">📦 Jumlah Label (Qty)</label>
+          <input type="number" id="input-qty" value="10" min="1" max="200" class="w-full px-2.5 py-1.5 text-xs font-bold border border-amber-300 rounded-lg bg-white" />
+        </div>
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Kondisi Barang</label>
           <select id="select-kondisi" onchange="updatePreview()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
@@ -175,6 +177,10 @@
             <option value="Rusak Berat">Rusak Berat (RB)</option>
           </select>
         </div>
+      </div>
+
+      <!-- 6. Sumber Dana & Lokasi -->
+      <div class="grid grid-cols-2 gap-2.5">
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Sumber Dana</label>
           <select id="select-dana" onchange="updatePreview()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
@@ -187,27 +193,25 @@
             <option value="Hibah / Lainnya">Hibah / Lainnya</option>
           </select>
         </div>
-      </div>
-
-      <!-- 7. Lokasi & Desain Stiker -->
-      <div class="grid grid-cols-2 gap-2.5">
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Lokasi / Ruangan</label>
-          <input type="text" id="input-lokasi" value="Ruang Guru / Lab" oninput="updatePreview()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg" />
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Desain Stiker</label>
-          <select id="select-desain" onchange="updatePreview()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
-            <option value="pro-qr" selected>Profesional (QR Code)</option>
-            <option value="pro-barcode">Profesional (Barcode 1D)</option>
-            <option value="simple">Sederhana (Ringkas Teks)</option>
-          </select>
+          <input type="text" id="input-lokasi" value="Ruang Kelas 1" oninput="updatePreview()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg" />
         </div>
       </div>
 
-      <!-- Tombol Tambah -->
-      <button type="button" onclick="addToQueue(true)" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow transition flex items-center justify-center gap-2">
-        <span>➕ Tambah ke Antrean Cetak & Auto +1</span>
+      <!-- 7. Desain Stiker -->
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Desain Stiker</label>
+        <select id="select-desain" onchange="updatePreview()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
+          <option value="pro-qr" selected>Profesional (QR Code)</option>
+          <option value="pro-barcode">Profesional (Barcode 1D)</option>
+          <option value="simple">Sederhana (Ringkas Teks)</option>
+        </select>
+      </div>
+
+      <!-- Tombol Tambah Massal -->
+      <button type="button" onclick="addMassToQueue()" class="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow-md transition flex items-center justify-center gap-2">
+        <span>🚀 Tambah Sekaligus ke Antrean Cetak Massal</span>
       </button>
     </section>
 
@@ -228,8 +232,8 @@
       <!-- Daftar Antrean -->
       <div class="no-print bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-2.5">
         <div class="flex items-center justify-between">
-          <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Antrean Cetak (<span id="queue-count">0</span> Item)</h2>
-          <button type="button" onclick="clearQueue()" class="text-xs text-red-600 hover:underline font-semibold">Kosongkan</button>
+          <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Antrean Cetak (<span id="queue-count">0</span> Total Label)</h2>
+          <button type="button" onclick="clearQueue()" class="text-xs text-red-600 hover:underline font-semibold">Kosongkan Semua</button>
         </div>
         <div id="queue-list" class="max-h-48 overflow-y-auto divide-y divide-slate-100 border border-slate-200 rounded-lg text-xs"></div>
       </div>
@@ -238,7 +242,7 @@
       <div id="print-area-wrapper" class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
         <div class="no-print flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
           <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Lembar Siap Cetak (A4)</h2>
-          <button type="button" onclick="window.print()" class="px-3 py-1 bg-emerald-700 text-white text-xs font-bold rounded shadow">🖨️ Cetak</button>
+          <button type="button" onclick="window.print()" class="px-3 py-1 bg-emerald-700 text-white text-xs font-bold rounded shadow">🖨️ Cetak Semua</button>
         </div>
         <div id="print-grid" class="flex flex-wrap gap-3 justify-start"></div>
       </div>
@@ -249,8 +253,8 @@
 
   <script>
     let kodeVersion = 'sederhana';
-    let labelQueue = JSON.parse(localStorage.getItem('bmd_queue_v5')) || [
-      { id: 1, opd: 'UPTD SDN 1 KARYA MULYA SARI', kode: '18.01.15-LP-001', nama: 'Laptop Zyrex Bantuan', tahun: '2024', kondisi: 'Baik', lokasi: 'Ruang Guru / Lab', dana: 'DAK Fisik', desain: 'pro-qr' }
+    let labelQueue = JSON.parse(localStorage.getItem('bmd_queue_v6')) || [
+      { id: 1, opd: 'UPTD SDN 1 KARYA MULYA SARI', kode: '18.01.15-MJ-001', nama: 'Kursi Siswa Kayu', tahun: '2024', kondisi: 'Baik', lokasi: 'Ruang Kelas 1', dana: 'DAK Fisik', desain: 'pro-qr' }
     ];
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -319,7 +323,6 @@
     function getData() {
       return {
         opd: document.getElementById('input-opd').value.trim() || 'UPTD SDN 1 KARYA MULYA SARI',
-        kode: document.getElementById('input-kode-final').value.trim() || '18.01.15-LP-001',
         nama: document.getElementById('input-nama-barang').value.trim() || 'Barang',
         tahun: document.getElementById('input-tahun').value.trim() || '2024',
         kondisi: document.getElementById('select-kondisi').value,
@@ -339,7 +342,6 @@
       if (item.kondisi === 'Rusak Ringan') badgeStyle = 'background:#fef9c3;color:#854d0e;';
       if (item.kondisi === 'Rusak Berat') badgeStyle = 'background:#fee2e2;color:#991b1b;';
 
-      // Logo SVG Mini untuk Stiker Label
       const logoSvg = `<svg style="width:11px;height:11px;display:inline-block;vertical-align:middle;margin-right:2px;" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4z"/></svg>`;
 
       if (item.desain === 'simple') {
@@ -406,14 +408,51 @@
     function updatePreview() {
       const container = document.getElementById('live-preview-container');
       container.innerHTML = '';
-      container.appendChild(createStickerCard(getData(), 'live'));
+      const dummyItem = {
+        ...getData(),
+        kode: document.getElementById('input-kode-final').value
+      };
+      container.appendChild(createStickerCard(dummyItem, 'live'));
     }
 
-    function addToQueue(autoIncr = false) {
-      const data = getData();
-      labelQueue.push({ id: Date.now(), ...data });
+    function addMassToQueue() {
+      const baseData = getData();
+      const qty = Math.max(1, parseInt(document.getElementById('input-qty').value || '1', 10));
+      
+      const kec = document.getElementById('select-kecamatan').value;
+      const katParts = document.getElementById('select-kategori').value.split('|');
+      const kodeLengkap = katParts[0];
+      const kodeSingkat = katParts[1];
+      const tahun = baseData.tahun;
+      
+      let currentUrut = parseInt(document.getElementById('input-urut').value || '1', 10);
+
+      // Loop untuk pembuatan nomor urut beruntun secara otomatis
+      for (let i = 0; i < qty; i++) {
+        const urutStr = String(currentUrut).padStart(3, '0');
+        const kodeFinal = kodeVersion === 'sederhana'
+          ? `18.01.${kec}-${kodeSingkat}-${urutStr}`
+          : `18.01.${kodeLengkap}.${tahun}.${urutStr}`;
+
+        labelQueue.push({
+          id: Date.now() + Math.random() + i,
+          opd: baseData.opd,
+          kode: kodeFinal,
+          nama: baseData.nama,
+          tahun: baseData.tahun,
+          kondisi: baseData.kondisi,
+          lokasi: baseData.lokasi,
+          dana: baseData.dana,
+          desain: baseData.desain
+        });
+
+        currentUrut++;
+      }
+
+      // Update nomor urut di form otomatis agar siap untuk input barang berikutnya
+      document.getElementById('input-urut').value = currentUrut;
+      generateKode();
       saveAndRender();
-      if (autoIncr) incrementUrut();
     }
 
     function removeFromQueue(index) {
@@ -422,11 +461,11 @@
     }
 
     function clearQueue() {
-      if (confirm('Kosongkan antrean?')) { labelQueue = []; saveAndRender(); }
+      if (confirm('Kosongkan semua antrean?')) { labelQueue = []; saveAndRender(); }
     }
 
     function saveAndRender() {
-      localStorage.setItem('bmd_queue_v5', JSON.stringify(labelQueue));
+      localStorage.setItem('bmd_queue_v6', JSON.stringify(labelQueue));
       renderAll();
     }
 
