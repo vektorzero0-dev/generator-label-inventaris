@@ -4,15 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LabelBMD Lamsel — Generator Label Inventaris Pemkab Lampung Selatan</title>
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- QRCode.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- JsBarcode -->
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+    body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
     .font-mono-code { font-family: 'JetBrains Mono', monospace; }
 
     .bmd-sticker {
@@ -40,16 +37,22 @@
 </head>
 <body class="text-slate-800 antialiased">
 
-  <!-- HEADER -->
+  <!-- HEADER DENGAN LOGO PEMKAB LAMSEL -->
   <header class="no-print bg-emerald-900 text-white shadow sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-amber-400 text-emerald-950 flex items-center justify-center font-black shadow">
-          🛡️
+        <!-- Logo Vektor Pemkab Lampung Selatan -->
+        <div class="w-10 h-10 rounded-lg bg-amber-400 text-emerald-950 flex items-center justify-center font-black shadow-inner border border-amber-300">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4zm0 3.18l6 2.67v4.15c0 4.22-2.78 8.16-6 9.33-3.22-1.17-6-5.11-6-9.33V7.85l6-2.67zM12 8a3.5 3.5 0 100 7 3.5 3.5 0 000-7z"/>
+          </svg>
         </div>
         <div>
-          <h1 class="font-bold text-base leading-tight">LabelBMD Lamsel</h1>
-          <p class="text-[11px] text-emerald-200">Standar BPKAD / Inspektorat Kab. Lampung Selatan (18.01)</p>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-base leading-tight">LabelBMD Lamsel</h1>
+            <span class="text-[10px] bg-emerald-800 text-amber-300 px-1.5 py-0.5 rounded font-semibold border border-emerald-600">Kab. Lampung Selatan</span>
+          </div>
+          <p class="text-[11px] text-emerald-200">Generator Stiker Inventaris Barang Milik Daerah (18.01)</p>
         </div>
       </div>
       <div class="flex items-center gap-2">
@@ -64,28 +67,39 @@
   </header>
 
   <!-- KONTEN UTAMA: GRID 2 KOLOM -->
-  <main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+  <main class="max-w-7xl mx-auto px-4 py-5 grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
-    <!-- KOLOM KIRI: FORM INPUT LENGKAP -->
-    <section class="no-print lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4">
-      <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
-        <h2 class="text-xs font-extrabold text-emerald-900 uppercase tracking-wider">Form Pembuatan Label BMD</h2>
-        <div class="flex gap-1">
-          <button type="button" onclick="setInstansi('UPTD SDN 1 KARYA MULYA SARI')" class="text-[10px] px-2 py-0.5 bg-slate-100 hover:bg-emerald-50 text-slate-700 rounded font-medium">Reset Nama Sekolah</button>
+    <!-- KOLOM KIRI: FORM INPUT -->
+    <section class="no-print lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3.5">
+      <div class="border-b border-slate-100 pb-2.5 flex items-center justify-between">
+        <h2 class="text-xs font-extrabold text-emerald-900 uppercase tracking-wider">Pengaturan & Input Barang</h2>
+        <button type="button" onclick="setInstansi('UPTD SDN 1 KARYA MULYA SARI')" class="text-[10px] px-2 py-0.5 bg-slate-100 hover:bg-emerald-50 text-slate-700 rounded font-medium">Reset Sekolah</button>
+      </div>
+
+      <!-- 1. Identitas Sekolah / OPD -->
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Sekolah / OPD / Desa</label>
+        <input type="text" id="input-opd" value="UPTD SDN 1 KARYA MULYA SARI" oninput="updatePreview()" class="w-full px-3 py-1.5 text-xs font-semibold border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 outline-none" />
+      </div>
+
+      <!-- 2. Pilihan Versi Pengkodean -->
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Versi Format Kode BMD</label>
+        <div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-lg">
+          <button type="button" id="btn-kode-sederhana" onclick="setKodeVersion('sederhana')" class="py-1.5 px-2 text-xs font-bold rounded-md bg-white text-emerald-800 shadow-sm transition">
+            Versi Sederhana
+          </button>
+          <button type="button" id="btn-kode-profesional" onclick="setKodeVersion('profesional')" class="py-1.5 px-2 text-xs font-semibold rounded-md text-slate-600 hover:text-slate-900 transition">
+            Versi Profesional (BPKAD)
+          </button>
         </div>
       </div>
 
-      <!-- 1. Identitas OPD / Sekolah -->
-      <div class="space-y-2">
-        <label class="block text-xs font-bold text-slate-700">Nama Instansi / Sekolah / OPD</label>
-        <input type="text" id="input-opd" value="UPTD SDN 1 KARYA MULYA SARI" oninput="updatePreview()" class="w-full px-3 py-2 text-xs font-semibold border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 outline-none" />
-      </div>
-
-      <!-- 2. Pengkodean BMD & Kecamatan -->
-      <div class="grid grid-cols-2 gap-3">
-        <div>
+      <!-- 3. Kecamatan & Nomor Urut -->
+      <div class="grid grid-cols-2 gap-2.5">
+        <div id="wrap-kecamatan">
           <label class="block text-xs font-bold text-slate-700 mb-1">Kecamatan Lamsel</label>
-          <select id="select-kecamatan" onchange="generateKode()" class="w-full px-2.5 py-2 text-xs border border-slate-300 rounded-lg bg-white">
+          <select id="select-kecamatan" onchange="generateKode()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
             <option value="04">04 - Natar</option>
             <option value="05">05 - Tanjung Bintang</option>
             <option value="06">06 - Kalianda</option>
@@ -105,68 +119,67 @@
             <option value="20">20 - Way Panji</option>
           </select>
         </div>
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Urut / Register</label>
+        <div id="wrap-urut">
+          <label class="block text-xs font-bold text-slate-700 mb-1">No. Urut / Register</label>
           <div class="flex gap-1">
-            <input type="number" id="input-urut" value="1" min="1" max="9999" oninput="generateKode()" class="w-full px-2 py-2 text-xs font-bold border border-slate-300 rounded-lg text-center" />
+            <input type="number" id="input-urut" value="1" min="1" max="9999" oninput="generateKode()" class="w-full px-2 py-1.5 text-xs font-bold border border-slate-300 rounded-lg text-center" />
             <button type="button" onclick="incrementUrut()" class="px-2 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-xs font-bold rounded-lg">+1</button>
           </div>
         </div>
       </div>
 
-      <!-- 3. Kategori Barang -->
+      <!-- 4. Kategori Barang -->
       <div>
-        <label class="block text-xs font-bold text-slate-700 mb-1">Kategori Barang Standar</label>
-        <select id="select-kategori" onchange="onKategoriChange()" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white">
-          <option value="02.02.01.01.01|LP|Laptop / Komputer" selected>Laptop / Komputer (-LP-)</option>
-          <option value="02.02.01.02.01|PR|Printer / Scanner">Printer / Scanner (-PR-)</option>
-          <option value="02.02.01.03.01|MJ|Meja Kerja">Meja Kerja / Siswa (-MJ-)</option>
-          <option value="02.02.01.03.02|KR|Kursi Kerja">Kursi Kerja / Siswa (-KR-)</option>
-          <option value="02.02.01.04.01|LM|Lemari Arsip">Lemari Arsip / Rak (-LM-)</option>
-          <option value="02.02.01.05.01|AC|AC / Kipas">AC / Pendingin Ruangan (-AC-)</option>
-          <option value="02.02.01.06.01|PRJ|Proyektor">Proyektor / LCD (-PRJ-)</option>
-          <option value="02.02.02.01.01|R2|Kendaraan Roda 2">Kendaraan Roda 2 (-R2-)</option>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Klasifikasi Kode Barang</label>
+        <select id="select-kategori" onchange="onKategoriChange()" class="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
+          <option value="02.02.01.01.01|LP|Laptop / Komputer" selected>02.02.01.01.01 (LP) — Laptop / Komputer</option>
+          <option value="02.02.01.02.01|PR|Printer / Scanner">02.02.01.02.01 (PR) — Printer / Scanner</option>
+          <option value="02.02.01.03.01|MJ|Meja Kerja">02.02.01.03.01 (MJ) — Meja Kerja / Siswa</option>
+          <option value="02.02.01.03.02|KR|Kursi Kerja">02.02.01.03.02 (KR) — Kursi Kerja / Siswa</option>
+          <option value="02.02.01.04.01|LM|Lemari Arsip">02.02.01.04.01 (LM) — Lemari Arsip / Rak</option>
+          <option value="02.02.01.05.01|AC|AC / Kipas">02.02.01.05.01 (AC) — AC / Pendingin Ruangan</option>
+          <option value="02.02.01.06.01|PRJ|Proyektor">02.02.01.06.01 (PRJ) — Proyektor / LCD</option>
+          <option value="02.02.02.01.01|R2|Kendaraan Roda 2">02.02.02.01.01 (R2) — Kendaraan Roda 2</option>
+          <option value="01.01.01.01|TNH|Tanah">01.01.01.01 (TNH) — Tanah</option>
         </select>
       </div>
 
-      <!-- Hasil Kode Final -->
-      <div class="bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg">
-        <label class="text-[10px] font-bold text-emerald-800 uppercase block mb-1">Kode BMD Final (Otomatis)</label>
-        <input type="text" id="input-kode-final" value="18.01.15-LP-001" oninput="updatePreview()" class="w-full px-3 py-1.5 text-xs font-mono-code font-bold bg-white border border-emerald-400 rounded text-emerald-950" />
+      <!-- Kode Final -->
+      <div class="bg-emerald-50 border border-emerald-200 p-2 rounded-lg">
+        <div class="flex justify-between items-center mb-1">
+          <label class="text-[10px] font-bold text-emerald-800 uppercase">Kode BMD Terbentuk</label>
+          <span id="kode-mode-badge" class="text-[10px] font-semibold text-emerald-700">Format Sederhana</span>
+        </div>
+        <input type="text" id="input-kode-final" value="18.01.15-LP-001" oninput="updatePreview()" class="w-full px-2.5 py-1 text-xs font-mono-code font-bold bg-white border border-emerald-400 rounded text-emerald-950" />
       </div>
 
-      <!-- 4. Nama Barang Spesifik -->
-      <div>
-        <label class="block text-xs font-bold text-slate-700 mb-1">Nama / Merk Barang</label>
-        <input type="text" id="input-nama-barang" value="Laptop Zyrex Bantuan" oninput="updatePreview()" class="w-full px-3 py-2 text-xs font-semibold border border-slate-300 rounded-lg" />
-      </div>
-
-      <!-- 5. Tahun, Kondisi, Lokasi, Sumber Dana -->
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Tahun Perolehan</label>
-          <input type="number" id="input-tahun" value="2024" oninput="updatePreview()" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg" />
+      <!-- 5. Nama Barang & Tahun -->
+      <div class="grid grid-cols-3 gap-2.5">
+        <div class="col-span-2">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Nama / Merk Barang</label>
+          <input type="text" id="input-nama-barang" value="Laptop Zyrex Bantuan" oninput="updatePreview()" class="w-full px-3 py-1.5 text-xs font-semibold border border-slate-300 rounded-lg" />
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Kondisi</label>
-          <select id="select-kondisi" onchange="updatePreview()" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Tahun</label>
+          <input type="number" id="input-tahun" value="2024" oninput="generateKode()" class="w-full px-2.5 py-1.5 text-xs font-semibold border border-slate-300 rounded-lg" />
+        </div>
+      </div>
+
+      <!-- 6. Kondisi & Sumber Dana -->
+      <div class="grid grid-cols-2 gap-2.5">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Kondisi Barang</label>
+          <select id="select-kondisi" onchange="updatePreview()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
             <option value="Baik" selected>Baik (B)</option>
             <option value="Rusak Ringan">Rusak Ringan (RR)</option>
             <option value="Rusak Berat">Rusak Berat (RB)</option>
           </select>
         </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Lokasi / Ruangan</label>
-          <input type="text" id="input-lokasi" value="Ruang Guru / Lab" oninput="updatePreview()" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg" />
-        </div>
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Sumber Dana</label>
-          <select id="select-dana" onchange="updatePreview()" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white">
+          <select id="select-dana" onchange="updatePreview()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
             <option value="DAK Fisik" selected>DAK Fisik Pendidikan</option>
-            <option value="Bantuan Pusat / Digitalisasi">Bantuan Pemerintah Pusat</option>
+            <option value="Bantuan Pusat">Bantuan Pemerintah Pusat</option>
             <option value="Dana BOS">Dana BOS Reguler</option>
             <option value="Dana BOS Afirmasi">Dana BOS Afirmasi</option>
             <option value="APBD Lamsel">APBD Kab. Lamsel</option>
@@ -176,52 +189,58 @@
         </div>
       </div>
 
-      <!-- Format Label -->
-      <div>
-        <label class="block text-xs font-bold text-slate-700 mb-1">Model / Format Label</label>
-        <select id="select-format" onchange="updatePreview()" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white">
-          <option value="standard" selected>Format Standar BMD (Dengan QR Code)</option>
-          <option value="simple">Format Label Sederhana (Ringkas Teks)</option>
-        </select>
+      <!-- 7. Lokasi & Desain Stiker -->
+      <div class="grid grid-cols-2 gap-2.5">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Lokasi / Ruangan</label>
+          <input type="text" id="input-lokasi" value="Ruang Guru / Lab" oninput="updatePreview()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Desain Stiker</label>
+          <select id="select-desain" onchange="updatePreview()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
+            <option value="pro-qr" selected>Profesional (QR Code)</option>
+            <option value="pro-barcode">Profesional (Barcode 1D)</option>
+            <option value="simple">Sederhana (Ringkas Teks)</option>
+          </select>
+        </div>
       </div>
 
-      <!-- Tombol Tambah ke Antrean -->
-      <button type="button" onclick="addToQueue(true)" class="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow transition flex items-center justify-center gap-2">
+      <!-- Tombol Tambah -->
+      <button type="button" onclick="addToQueue(true)" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow transition flex items-center justify-center gap-2">
         <span>➕ Tambah ke Antrean Cetak & Auto +1</span>
       </button>
     </section>
 
-    <!-- KOLOM KANAN: LIVE PREVIEW & DAFTAR ANTREAN -->
-    <section class="lg:col-span-7 space-y-6">
+    <!-- KOLOM KANAN: LIVE PREVIEW & LEMBAR CETAK -->
+    <section class="lg:col-span-7 space-y-5">
 
-      <!-- Live Preview Card -->
-      <div class="no-print bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-        <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Pratinjau Stiker Live</h2>
-        <div class="bg-slate-100 border border-dashed border-slate-300 rounded-xl p-6 flex items-center justify-center min-h-[160px]">
+      <!-- Live Preview -->
+      <div class="no-print bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <div class="flex items-center justify-between mb-2.5">
+          <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Pratinjau Stiker Live</h2>
+          <span class="text-[11px] text-emerald-700 font-semibold">Ukuran Standar 85 x 45 mm</span>
+        </div>
+        <div class="bg-slate-100 border border-dashed border-slate-300 rounded-xl p-5 flex items-center justify-center min-h-[150px]">
           <div id="live-preview-container"></div>
         </div>
       </div>
 
       <!-- Daftar Antrean -->
-      <div class="no-print bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-3">
+      <div class="no-print bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-2.5">
         <div class="flex items-center justify-between">
           <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Antrean Cetak (<span id="queue-count">0</span> Item)</h2>
           <button type="button" onclick="clearQueue()" class="text-xs text-red-600 hover:underline font-semibold">Kosongkan</button>
         </div>
-        <div id="queue-list" class="max-h-52 overflow-y-auto divide-y divide-slate-100 border border-slate-200 rounded-lg text-xs">
-          <!-- Diisi JS -->
-        </div>
+        <div id="queue-list" class="max-h-48 overflow-y-auto divide-y divide-slate-100 border border-slate-200 rounded-lg text-xs"></div>
       </div>
 
       <!-- Area Lembar Cetak A4 -->
-      <div id="print-area-wrapper" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-        <div class="no-print flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
-          <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Lembar Stiker Siap Cetak (A4)</h2>
+      <div id="print-area-wrapper" class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <div class="no-print flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+          <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Lembar Siap Cetak (A4)</h2>
           <button type="button" onclick="window.print()" class="px-3 py-1 bg-emerald-700 text-white text-xs font-bold rounded shadow">🖨️ Cetak</button>
         </div>
-        <div id="print-grid" class="flex flex-wrap gap-3 justify-start">
-          <!-- Stiker hasil cetak -->
-        </div>
+        <div id="print-grid" class="flex flex-wrap gap-3 justify-start"></div>
       </div>
 
     </section>
@@ -229,8 +248,9 @@
   </main>
 
   <script>
-    let labelQueue = JSON.parse(localStorage.getItem('bmd_queue_v3')) || [
-      { id: 1, opd: 'UPTD SDN 1 KARYA MULYA SARI', kode: '18.01.15-LP-001', nama: 'Laptop Zyrex Bantuan', tahun: '2024', kondisi: 'Baik', lokasi: 'Ruang Guru', dana: 'DAK Fisik' }
+    let kodeVersion = 'sederhana';
+    let labelQueue = JSON.parse(localStorage.getItem('bmd_queue_v5')) || [
+      { id: 1, opd: 'UPTD SDN 1 KARYA MULYA SARI', kode: '18.01.15-LP-001', nama: 'Laptop Zyrex Bantuan', tahun: '2024', kondisi: 'Baik', lokasi: 'Ruang Guru / Lab', dana: 'DAK Fisik', desain: 'pro-qr' }
     ];
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -243,9 +263,32 @@
       updatePreview();
     }
 
+    function setKodeVersion(ver) {
+      kodeVersion = ver;
+      const btnSimple = document.getElementById('btn-kode-sederhana');
+      const btnPro = document.getElementById('btn-kode-profesional');
+      const wrapKec = document.getElementById('wrap-kecamatan');
+      const badge = document.getElementById('kode-mode-badge');
+
+      if (ver === 'sederhana') {
+        btnSimple.className = 'py-1.5 px-2 text-xs font-bold rounded-md bg-white text-emerald-800 shadow-sm transition';
+        btnPro.className = 'py-1.5 px-2 text-xs font-semibold rounded-md text-slate-600 hover:text-slate-900 transition';
+        wrapKec.style.opacity = '1';
+        document.getElementById('select-kecamatan').disabled = false;
+        badge.textContent = 'Format Sederhana';
+      } else {
+        btnPro.className = 'py-1.5 px-2 text-xs font-bold rounded-md bg-white text-emerald-800 shadow-sm transition';
+        btnSimple.className = 'py-1.5 px-2 text-xs font-semibold rounded-md text-slate-600 hover:text-slate-900 transition';
+        wrapKec.style.opacity = '0.45';
+        document.getElementById('select-kecamatan').disabled = true;
+        badge.textContent = 'Format Profesional BPKAD';
+      }
+      generateKode();
+    }
+
     function onKategoriChange() {
       const val = document.getElementById('select-kategori').value.split('|');
-      if(val[2]) {
+      if (val[2]) {
         document.getElementById('input-nama-barang').value = val[2].split('/')[0].trim();
       }
       generateKode();
@@ -259,11 +302,17 @@
 
     function generateKode() {
       const kec = document.getElementById('select-kecamatan').value;
-      const kat = document.getElementById('select-kategori').value.split('|')[1];
+      const katParts = document.getElementById('select-kategori').value.split('|');
+      const kodeLengkap = katParts[0];
+      const kodeSingkat = katParts[1];
+      const tahun = document.getElementById('input-tahun').value || '2024';
       const urut = String(document.getElementById('input-urut').value || '1').padStart(3, '0');
-      
-      const final = `18.01.${kec}-${kat}-${urut}`;
-      document.getElementById('input-kode-final').value = final;
+
+      const finalKode = kodeVersion === 'sederhana'
+        ? `18.01.${kec}-${kodeSingkat}-${urut}`
+        : `18.01.${kodeLengkap}.${tahun}.${urut}`;
+
+      document.getElementById('input-kode-final').value = finalKode;
       updatePreview();
     }
 
@@ -276,7 +325,7 @@
         kondisi: document.getElementById('select-kondisi').value,
         lokasi: document.getElementById('input-lokasi').value.trim() || '-',
         dana: document.getElementById('select-dana').value,
-        format: document.getElementById('select-format').value
+        desain: document.getElementById('select-desain').value
       };
     }
 
@@ -287,41 +336,42 @@
       card.style.height = '45mm';
 
       let badgeStyle = 'background:#dcfce7;color:#166534;';
-      if(item.kondisi === 'Rusak Ringan') badgeStyle = 'background:#fef9c3;color:#854d0e;';
-      if(item.kondisi === 'Rusak Berat') badgeStyle = 'background:#fee2e2;color:#991b1b;';
+      if (item.kondisi === 'Rusak Ringan') badgeStyle = 'background:#fef9c3;color:#854d0e;';
+      if (item.kondisi === 'Rusak Berat') badgeStyle = 'background:#fee2e2;color:#991b1b;';
 
-      if (item.format === 'simple') {
-        // FORMAT LABEL SEDERHANA
+      // Logo SVG Mini untuk Stiker Label
+      const logoSvg = `<svg style="width:11px;height:11px;display:inline-block;vertical-align:middle;margin-right:2px;" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4z"/></svg>`;
+
+      if (item.desain === 'simple') {
         card.innerHTML = `
           <div style="background:#064e3b;color:#ffffff;padding:4px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:1.5px solid #fbbf24;">
-            <div style="font-size:9px;font-weight:800;text-transform:uppercase;">PEMKAB LAMPUNG SELATAN</div>
+            <div style="font-size:9px;font-weight:800;text-transform:uppercase;display:flex;align-items:center;">${logoSvg} PEMKAB LAMPUNG SELATAN</div>
             <div style="font-size:7.5px;font-weight:800;background:#fbbf24;color:#064e3b;padding:1px 4px;border-radius:2px;">INVENTARIS</div>
           </div>
-          <div style="flex:1;padding:6px 10px;display:flex;flex-direction:column;justify-content:center;gap:3px;">
-            <div style="font-size:8.5px;font-weight:700;color:#334155;text-transform:uppercase;">${escapeHtml(item.opd)}</div>
+          <div style="flex:1;padding:6px 10px;display:flex;flex-direction:column;justify-content:center;gap:2.5px;">
+            <div style="font-size:8.5px;font-weight:700;color:#334155;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.opd)}</div>
             <div style="font-size:11px;font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.nama)}</div>
-            <div class="font-mono-code" style="font-size:10.5px;font-weight:800;color:#064e3b;">Kode: ${escapeHtml(item.kode)}</div>
+            <div class="font-mono-code" style="font-size:10px;font-weight:800;color:#064e3b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Kode: ${escapeHtml(item.kode)}</div>
             <div style="display:flex;justify-content:space-between;align-items:center;font-size:8px;font-weight:600;color:#475569;margin-top:2px;">
-              <span>Tahun: <b>${escapeHtml(item.tahun)}</b> • Lokasi: <b>${escapeHtml(item.lokasi)}</b></span>
+              <span>Thn: <b>${escapeHtml(item.tahun)}</b> • ${escapeHtml(item.dana)}</span>
               <span style="${badgeStyle}padding:0 4px;border-radius:2px;">${escapeHtml(item.kondisi)}</span>
             </div>
           </div>
         `;
       } else {
-        // FORMAT STANDAR BMD DENGAN QR CODE
         card.innerHTML = `
           <div style="background:#064e3b;color:#ffffff;padding:4px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:1.5px solid #fbbf24;">
-            <div style="line-height:1.1;">
-              <div style="font-size:9px;font-weight:800;text-transform:uppercase;">PEMKAB LAMPUNG SELATAN</div>
-              <div style="font-size:8px;font-weight:600;color:#fde68a;">${escapeHtml(item.opd)}</div>
+            <div style="line-height:1.1;overflow:hidden;">
+              <div style="font-size:9px;font-weight:800;text-transform:uppercase;display:flex;align-items:center;">${logoSvg} PEMKAB LAMPUNG SELATAN</div>
+              <div style="font-size:8px;font-weight:600;color:#fde68a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.opd)}</div>
             </div>
-            <div style="font-size:7px;font-weight:800;background:#fbbf24;color:#064e3b;padding:1px 4px;border-radius:2px;">BMD 18.01</div>
+            <div style="font-size:7px;font-weight:800;background:#fbbf24;color:#064e3b;padding:1px 4px;border-radius:2px;shrink:0;">BMD 18.01</div>
           </div>
           <div style="flex:1;padding:5px 8px;display:flex;align-items:center;justify-content:space-between;gap:6px;overflow:hidden;">
             <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2.5px;">
               <div style="background:#f1f5f9;border:1px solid #cbd5e1;padding:1.5px 4px;border-radius:2px;">
                 <div style="font-size:6.5px;color:#475569;font-weight:700;">KODE BARANG</div>
-                <div class="font-mono-code" style="font-size:10px;font-weight:800;color:#0f172a;">${escapeHtml(item.kode)}</div>
+                <div class="font-mono-code" style="font-size:9.5px;font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.kode)}</div>
               </div>
               <div style="font-size:10.5px;font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.nama)}</div>
               <div style="display:flex;align-items:center;gap:4px;font-size:8px;font-weight:600;color:#334155;">
@@ -330,13 +380,20 @@
               </div>
               <div style="font-size:7.5px;color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Lok: <b>${escapeHtml(item.lokasi)}</b> • ${escapeHtml(item.dana)}</div>
             </div>
-            <div id="qr-${uid}" style="shrink:0;"></div>
+            <div id="code-${uid}" style="shrink:0;display:flex;align-items:center;justify-content:center;"></div>
           </div>
         `;
 
         setTimeout(() => {
-          const el = document.getElementById(`qr-${uid}`);
-          if(el) {
+          const el = document.getElementById(`code-${uid}`);
+          if (!el) return;
+          if (item.desain === 'pro-barcode') {
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            el.appendChild(svg);
+            try {
+              JsBarcode(svg, item.kode, { format: 'CODE128', width: 1, height: 32, displayValue: false, margin: 0 });
+            } catch (e) {}
+          } else {
             const payload = `PEMKAB LAMPUNG SELATAN\nUnit: ${item.opd}\nKode: ${item.kode}\nBarang: ${item.nama}\nTahun: ${item.tahun} | Kondisi: ${item.kondisi}\nLokasi: ${item.lokasi}\nSumber Dana: ${item.dana}`;
             new QRCode(el, { text: payload, width: 54, height: 54, colorDark: '#0f172a', colorLight: '#ffffff' });
           }
@@ -356,7 +413,7 @@
       const data = getData();
       labelQueue.push({ id: Date.now(), ...data });
       saveAndRender();
-      if(autoIncr) incrementUrut();
+      if (autoIncr) incrementUrut();
     }
 
     function removeFromQueue(index) {
@@ -365,11 +422,11 @@
     }
 
     function clearQueue() {
-      if(confirm('Kosongkan antrean?')) { labelQueue = []; saveAndRender(); }
+      if (confirm('Kosongkan antrean?')) { labelQueue = []; saveAndRender(); }
     }
 
     function saveAndRender() {
-      localStorage.setItem('bmd_queue_v3', JSON.stringify(labelQueue));
+      localStorage.setItem('bmd_queue_v5', JSON.stringify(labelQueue));
       renderAll();
     }
 
@@ -379,7 +436,7 @@
       document.getElementById('queue-count').textContent = labelQueue.length;
       document.getElementById('total-print-badge').textContent = labelQueue.length;
 
-      if(labelQueue.length === 0) {
+      if (labelQueue.length === 0) {
         list.innerHTML = `<div class="p-4 text-center text-slate-400">Antrean kosong.</div>`;
       } else {
         list.innerHTML = labelQueue.map((item, idx) => `
@@ -402,8 +459,8 @@
     }
 
     function exportCSV() {
-      if(labelQueue.length === 0) return alert('Kosong');
-      const csv = 'OPD,Kode,Barang,Tahun,Kondisi,Lokasi,Dana\n' + labelQueue.map(i => `"${i.opd}","${i.kode}","${i.nama}","${i.tahun}","${i.kondisi}","${i.lokasi}","${i.dana}"`).join('\n');
+      if (labelQueue.length === 0) return alert('Antrean kosong');
+      const csv = 'OPD,Kode,Barang,Tahun,Kondisi,Lokasi,SumberDana\n' + labelQueue.map(i => `"${i.opd}","${i.kode}","${i.nama}","${i.tahun}","${i.kondisi}","${i.lokasi}","${i.dana}"`).join('\n');
       const blob = new Blob([csv], { type: 'text/csv' });
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'label-bmd-lamsel.csv'; a.click();
     }
