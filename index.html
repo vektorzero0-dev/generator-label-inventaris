@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LabelBMD Lamsel — Pendataan & Cetak Label Per Ruangan (KIR)</title>
+  <title>Generator Label Inventaris Nasional — Database & Generator Per Ruangan</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap');
     body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
     .font-mono-code { font-family: 'JetBrains Mono', monospace; }
 
-    /* Stiker Minimalis Lis Merah */
+    /* Stiker Padat Profesional & Anti Ruang Kosong */
     .bmd-sticker {
       background: #ffffff;
       color: #0f172a;
@@ -22,17 +22,16 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-    }
-    .bmd-sticker.red-border {
-      border: 1.6px solid #b91c1c;
+      border: 1.6px solid #991b1b;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
 
     @media print {
-      @page { size: A4 portrait; margin: 7mm; }
+      @page { size: A4 portrait; margin: 6mm; }
       body { background: #ffffff !important; margin: 0 !important; }
       .no-print { display: none !important; }
-      #print-area-wrapper { border: none !important; box-shadow: none !important; padding: 0 !important; }
-      #print-grid { display: flex !important; flex-wrap: wrap !important; gap: 5px !important; }
+      #print-area-wrapper { border: none !important; box-shadow: none !important; padding: 0 !important; background: transparent !important; }
+      #print-grid { display: flex !important; flex-wrap: wrap !important; gap: 4px !important; }
       .bmd-sticker { break-inside: avoid !important; page-break-inside: avoid !important; }
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
@@ -50,18 +49,24 @@
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="font-bold text-base leading-tight">LabelBMD Lamsel</h1>
-            <span class="text-[10px] bg-slate-800 text-slate-200 px-2 py-0.5 rounded font-semibold border border-slate-700">Kab. Lampung Selatan (18.01)</span>
+            <h1 class="font-bold text-base leading-tight">Generator Label Inventaris</h1>
+            <span class="text-[10px] bg-emerald-700 text-emerald-100 px-2 py-0.5 rounded font-semibold border border-emerald-600">Nasional (All Indonesia)</span>
           </div>
-          <p class="text-[11px] text-slate-400">Pendataan & Cetak Label Inventaris Per Ruangan (KIR)</p>
+          <p class="text-[11px] text-slate-400">Database & Stiker Aset Per Ruangan (KIR)</p>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <button onclick="exportCSV()" class="px-3 py-1.5 text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg transition">
-          📥 Ekspor CSV Ruangan Ini
+
+      <!-- KONTROL DATABASE JSON & CETAK -->
+      <div class="flex flex-wrap items-center gap-2">
+        <label class="px-3 py-1.5 text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg shadow cursor-pointer transition flex items-center gap-1">
+          📂 Muat (.json)
+          <input type="file" id="import-json-file" accept=".json" onchange="importDatabaseJSON(event)" class="hidden" />
+        </label>
+        <button onclick="exportDatabaseJSON()" class="px-3 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg shadow transition flex items-center gap-1">
+          💾 Simpan (.json)
         </button>
-        <button onclick="window.print()" class="px-4 py-1.5 text-xs font-bold bg-red-700 hover:bg-red-600 text-white rounded-lg shadow transition">
-          🖨️ Cetak Ruangan Ini (<span id="total-print-badge">0</span>)
+        <button onclick="window.print()" class="px-3.5 py-1.5 text-xs font-bold bg-red-700 hover:bg-red-600 text-white rounded-lg shadow transition">
+          🖨️ Cetak (<span id="total-print-badge">0</span>)
         </button>
       </div>
     </div>
@@ -70,33 +75,156 @@
   <!-- KONTEN UTAMA: GRID 2 KOLOM -->
   <main class="max-w-7xl mx-auto px-4 py-5 grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
-    <!-- KOLOM KIRI: FORM PENDATAAN PER RUANGAN -->
+    <!-- KOLOM KIRI: FORM INPUT & PENGATURAN NASIONAL -->
     <section class="no-print lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3">
       <div class="border-b border-slate-100 pb-2 flex items-center justify-between">
-        <h2 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Langkah 1: Tentukan Ruangan & Barang</h2>
-        <button type="button" onclick="setInstansi('UPTD SDN 1 KARYA MULYA SARI')" class="text-[10px] px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-medium">Reset Sekolah</button>
+        <h2 id="form-title" class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Form Input / Tambah Inventaris</h2>
+        <button type="button" onclick="resetForm()" class="text-[10px] px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-medium">Batal Edit</button>
       </div>
+      <input type="hidden" id="edit-index" value="-1" />
 
-      <!-- UPLOAD LOGO PEMDA -->
+      <!-- UPLOAD LOGO INSTANSI / PEMDA -->
       <div class="bg-slate-50 border border-slate-200 p-2 rounded-lg">
-        <label class="block text-xs font-bold text-slate-700 mb-1">🖼️ Logo Pemda Lampung Selatan</label>
+        <label class="block text-xs font-bold text-slate-700 mb-1">🖼️ Logo Instansi / Pemda (Transparan Tanpa Background)</label>
         <input type="file" id="input-logo-file" accept="image/*" onchange="handleLogoUpload(event)" class="w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 cursor-pointer" />
       </div>
 
-      <!-- 1. Identitas Sekolah / OPD -->
+      <!-- 1. Dropdown Wilayah & Instansi Resmi Indonesia -->
+      <div class="bg-red-50/70 border border-red-200 p-3 rounded-lg space-y-2.5">
+        <div class="flex items-center justify-between">
+          <label class="block text-xs font-extrabold text-red-900">📍 Kabupaten / Kota & Kode Wilayah</label>
+        </div>
+
+        <select id="select-wilayah" onchange="onWilayahChange()" class="w-full px-2.5 py-1.5 text-xs font-bold border border-red-300 rounded-lg bg-white text-slate-900 focus:ring-2 focus:ring-red-600 outline-none">
+          <optgroup label="=== LAMPUNG ===">
+            <option value="18.01|PEMKAB LAMPUNG SELATAN" selected>18.01 - Kab. Lampung Selatan</option>
+            <option value="18.02|PEMKAB LAMPUNG TENGAH">18.02 - Kab. Lampung Tengah</option>
+            <option value="18.03|PEMKAB LAMPUNG UTARA">18.03 - Kab. Lampung Utara</option>
+            <option value="18.04|PEMKAB LAMPUNG BARAT">18.04 - Kab. Lampung Barat</option>
+            <option value="18.05|PEMKAB TULANG BAWANG">18.05 - Kab. Tulang Bawang</option>
+            <option value="18.06|PEMKAB TANGGAMUS">18.06 - Kab. Tanggamus</option>
+            <option value="18.07|PEMKAB LAMPUNG TIMUR">18.07 - Kab. Lampung Timur</option>
+            <option value="18.08|PEMKAB WAY KANAN">18.08 - Kab. Way Kanan</option>
+            <option value="18.09|PEMKAB PESAWARAN">18.09 - Kab. Pesawaran</option>
+            <option value="18.10|PEMKAB PRINGSEWU">18.10 - Kab. Pringsewu</option>
+            <option value="18.11|PEMKAB MESUJI">18.11 - Kab. Mesuji</option>
+            <option value="18.12|PEMKAB TULANG BAWANG BARAT">18.12 - Kab. Tulang Bawang Barat</option>
+            <option value="18.13|PEMKAB PESISIR BARAT">18.13 - Kab. Pesisir Barat</option>
+            <option value="18.71|PEMKOTA BANDAR LAMPUNG">18.71 - Kota Bandar Lampung</option>
+            <option value="18.72|PEMKOTA METRO">18.72 - Kota Metro</option>
+          </optgroup>
+
+          <optgroup label="=== DKI JAKARTA ===">
+            <option value="31.01|PEMKAB KEPULAUAN SERIBU">31.01 - Kab. Adm. Kepulauan Seribu</option>
+            <option value="31.71|PEMKOTA JAKARTA PUSAT">31.71 - Kota Adm. Jakarta Pusat</option>
+            <option value="31.72|PEMKOTA JAKARTA UTARA">31.72 - Kota Adm. Jakarta Utara</option>
+            <option value="31.73|PEMKOTA JAKARTA BARAT">31.73 - Kota Adm. Jakarta Barat</option>
+            <option value="31.74|PEMKOTA JAKARTA SELATAN">31.74 - Kota Adm. Jakarta Selatan</option>
+            <option value="31.75|PEMKOTA JAKARTA TIMUR">31.75 - Kota Adm. Jakarta Timur</option>
+          </optgroup>
+
+          <optgroup label="=== JAWA BARAT ===">
+            <option value="32.01|PEMKAB BOGOR">32.01 - Kab. Bogor</option>
+            <option value="32.02|PEMKAB SUKABUMI">32.02 - Kab. Sukabumi</option>
+            <option value="32.03|PEMKAB CIANJUR">32.03 - Kab. Cianjur</option>
+            <option value="32.04|PEMKAB BANDUNG">32.04 - Kab. Bandung</option>
+            <option value="32.05|PEMKAB GARUT">32.05 - Kab. Garut</option>
+            <option value="32.06|PEMKAB TASIKMALAYA">32.06 - Kab. Tasikmalaya</option>
+            <option value="32.07|PEMKAB CIAMIS">32.07 - Kab. Ciamis</option>
+            <option value="32.08|PEMKAB KUNINGAN">32.08 - Kab. Kuningan</option>
+            <option value="32.09|PEMKAB CIREBON">32.09 - Kab. Cirebon</option>
+            <option value="32.10|PEMKAB MAJALENGKA">32.10 - Kab. Majalengka</option>
+            <option value="32.11|PEMKAB SUMEDANG">32.11 - Kab. Sumedang</option>
+            <option value="32.12|PEMKAB INDRAMAYU">32.12 - Kab. Indramayu</option>
+            <option value="32.13|PEMKAB SUBANG">32.13 - Kab. Subang</option>
+            <option value="32.14|PEMKAB PURWAKARTA">32.14 - Kab. Purwakarta</option>
+            <option value="32.15|PEMKAB KARAWANG">32.15 - Kab. Karawang</option>
+            <option value="32.16|PEMKAB BEKASI">32.16 - Kab. Bekasi</option>
+            <option value="32.17|PEMKAB BANDUNG BARAT">32.17 - Kab. Bandung Barat</option>
+            <option value="32.18|PEMKAB PANGANDARAN">32.18 - Kab. Pangandaran</option>
+            <option value="32.71|PEMKOTA BANDUNG">32.71 - Kota Bandung</option>
+            <option value="32.72|PEMKOTA BOGOR">32.72 - Kota Bogor</option>
+            <option value="32.73|PEMKOTA CIMAHI">32.73 - Kota Cimahi</option>
+            <option value="32.75|PEMKOTA BEKASI">32.75 - Kota Bekasi</option>
+            <option value="32.76|PEMKOTA DEPOK">32.76 - Kota Depok</option>
+          </optgroup>
+
+          <optgroup label="=== JAWA TENGAH ===">
+            <option value="33.01|PEMKAB CILACAP">33.01 - Kab. Cilacap</option>
+            <option value="33.02|PEMKAB BANYUMAS">33.02 - Kab. Banyumas</option>
+            <option value="33.07|PEMKAB WONOSOBO">33.07 - Kab. Wonosobo</option>
+            <option value="33.09|PEMKAB BOYOLALI">33.09 - Kab. Boyolali</option>
+            <option value="33.10|PEMKAB KLATEN">33.10 - Kab. Klaten</option>
+            <option value="33.22|PEMKAB SEMARANG">33.22 - Kab. Semarang</option>
+            <option value="33.71|PEMKOTA SEMARANG">33.71 - Kota Semarang</option>
+            <option value="33.72|PEMKOTA SURAKARTA">33.72 - Kota Surakarta (Solo)</option>
+          </optgroup>
+
+          <optgroup label="=== JAWA TIMUR ===">
+            <option value="35.07|PEMKAB MALANG">35.07 - Kab. Malang</option>
+            <option value="35.15|PEMKAB SIDOARJO">35.15 - Kab. Sidoarjo</option>
+            <option value="35.24|PEMKAB LAMONGAN">35.24 - Kab. Lamongan</option>
+            <option value="35.25|PEMKAB GRESIK">35.25 - Kab. Gresik</option>
+            <option value="35.71|PEMKOTA SURABAYA">35.71 - Kota Surabaya</option>
+            <option value="35.73|PEMKOTA MALANG">35.73 - Kota Malang</option>
+          </optgroup>
+
+          <optgroup label="=== PROVINSI LAINNYA ===">
+            <option value="34.04|PEMKAB SLEMAN">34.04 - DI Yogyakarta (Kab. Sleman)</option>
+            <option value="36.74|PEMKOTA TANGERANG SELATAN">36.74 - Banten (Kota Tangerang Selatan)</option>
+            <option value="12.71|PEMKOTA MEDAN">12.71 - Sumatera Utara (Kota Medan)</option>
+            <option value="13.71|PEMKOTA PADANG">13.71 - Sumatera Barat (Kota Padang)</option>
+            <option value="16.71|PEMKOTA PALEMBANG">16.71 - Sumatera Selatan (Palembang)</option>
+            <option value="21.71|PEMKOTA BATAM">21.71 - Kepulauan Riau (Kota Batam)</option>
+            <option value="51.71|PEMKOTA DENPASAR">51.71 - Bali (Kota Denpasar)</option>
+            <option value="73.71|PEMKOTA MAKASSAR">73.71 - Sulawesi Selatan (Makassar)</option>
+          </optgroup>
+
+          <option value="CUSTOM_WILAYAH">✏️ Wilayah Lainnya (Input Manual)</option>
+        </select>
+
+        <div class="grid grid-cols-3 gap-2 pt-1">
+          <div>
+            <label class="block text-[10px] font-bold text-red-900 mb-0.5">Kode Kab/Kota</label>
+            <input type="text" id="input-kode-wilayah" value="18.01" oninput="generateKode()" class="w-full px-2 py-1 text-xs font-mono font-bold border border-red-300 rounded bg-white text-center" />
+          </div>
+          <div class="col-span-2">
+            <label class="block text-[10px] font-bold text-red-900 mb-0.5">Nama Instansi / Pemda</label>
+            <input type="text" id="input-pemda" value="PEMKAB LAMPUNG SELATAN" oninput="updateRoomIdentity()" class="w-full px-2 py-1 text-xs font-bold border border-red-300 rounded bg-white uppercase" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. PILIHAN KECAMATAN (BARU) -->
+      <div class="bg-amber-50/70 border border-amber-200 p-3 rounded-lg space-y-2">
+        <div class="flex items-center justify-between">
+          <label class="block text-xs font-extrabold text-amber-900">🏛️ Kecamatan / Unit Wilayah</label>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block text-[10px] font-bold text-amber-900 mb-0.5">Kode Kec.</label>
+            <input type="text" id="input-kode-kecamatan" value="15" maxlength="4" oninput="generateKode()" placeholder="15" class="w-full px-2 py-1 text-xs font-mono font-bold border border-amber-300 rounded bg-white text-center" />
+          </div>
+          <div class="col-span-2">
+            <label class="block text-[10px] font-bold text-amber-900 mb-0.5">Nama Kecamatan</label>
+            <input type="text" id="input-nama-kecamatan" value="Candipuro" oninput="generateKode()" placeholder="Kecamatan..." class="w-full px-2 py-1 text-xs font-bold border border-amber-300 rounded bg-white" />
+          </div>
+        </div>
+      </div>
+
       <div>
-        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Sekolah / OPD / Desa</label>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Sekolah / Satuan Pendidikan</label>
         <input type="text" id="input-opd" value="UPTD SDN 1 KARYA MULYA SARI" oninput="updateRoomIdentity()" class="w-full px-3 py-1.5 text-xs font-semibold border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-700 outline-none" />
       </div>
 
-      <!-- 2. PILIHAN RUANGAN YANG SEDANG DIDATA (+ OPSI RUANG LAINNYA) -->
-      <div class="bg-red-50/80 border border-red-200 p-3 rounded-lg space-y-2">
+      <!-- 3. PILIHAN RUANGAN -->
+      <div class="bg-slate-50 border border-slate-200 p-3 rounded-lg space-y-2">
         <div class="flex items-center justify-between">
-          <label class="block text-xs font-extrabold text-red-900">🚪 Ruangan yang Sedang Didata</label>
-          <span class="text-[10px] bg-red-100 text-red-800 px-1.5 py-0.5 rounded font-bold">Aktif</span>
+          <label class="block text-xs font-extrabold text-slate-800">🚪 Ruangan Aktif (Database)</label>
+          <span class="text-[10px] bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded font-bold">Pilih Ruangan</span>
         </div>
 
-        <select id="select-ruangan" onchange="onRuanganChange()" class="w-full px-2.5 py-1.5 text-xs font-bold border border-red-300 rounded-lg bg-white text-slate-900 focus:ring-2 focus:ring-red-600 outline-none">
+        <select id="select-ruangan" onchange="onRuanganChange()" class="w-full px-2.5 py-1.5 text-xs font-bold border border-slate-300 rounded-lg bg-white text-slate-900 focus:ring-2 focus:ring-slate-700 outline-none">
           <option value="Ruang Kelas 1" selected>Ruang Kelas 1</option>
           <option value="Ruang Kelas 2">Ruang Kelas 2</option>
           <option value="Ruang Kelas 3">Ruang Kelas 3</option>
@@ -109,126 +237,79 @@
           <option value="Ruang TU / Operator">Ruang TU / Operator</option>
           <option value="Ruang UKS">Ruang UKS</option>
           <option value="Gudang Sekolah">Gudang Sekolah</option>
-          <option value="CUSTOM_ROOM">✏️ Ruang Lainnya (Input Nama Ruang Manual)</option>
+          <option value="CUSTOM_ROOM">✏️ Ruang Lainnya (Input Manual)</option>
         </select>
 
-        <!-- Kotak Input Manual Muncul Saat Pilih "Ruang Lainnya" -->
         <div id="custom-room-box" class="hidden pt-1">
-          <label class="block text-[10px] font-bold text-red-900 mb-0.5">Ketik Nama Ruangan Manual:</label>
-          <input type="text" id="input-ruangan-manual" placeholder="Misal: Laboratorium Komputer / Mushola" oninput="updateRoomIdentity()" class="w-full px-2.5 py-1.5 text-xs font-bold border border-red-400 rounded-lg bg-white text-slate-900 focus:ring-2 focus:ring-red-600 outline-none" />
+          <input type="text" id="input-ruangan-manual" placeholder="Ketik nama ruangan..." oninput="updateRoomIdentity()" class="w-full px-2.5 py-1.5 text-xs font-bold border border-slate-300 rounded-lg bg-white text-slate-900" />
         </div>
       </div>
 
-      <!-- 3. Pilihan Versi Pengkodean -->
+      <!-- 4. Versi Pengkodean -->
       <div>
-        <label class="block text-xs font-bold text-slate-700 mb-1">Versi Format Kode BMD</label>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Versi Format Kode Aset</label>
         <div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-lg">
-          <button type="button" id="btn-kode-sederhana" onclick="setKodeVersion('sederhana')" class="py-1.5 px-2 text-xs font-bold rounded-md bg-white text-slate-900 shadow-sm transition">
-            Versi Sederhana
-          </button>
-          <button type="button" id="btn-kode-profesional" onclick="setKodeVersion('profesional')" class="py-1.5 px-2 text-xs font-semibold rounded-md text-slate-600 hover:text-slate-900 transition">
-            Versi Profesional (BPKAD)
-          </button>
+          <button type="button" id="btn-kode-sederhana" onclick="setKodeVersion('sederhana')" class="py-1.5 px-2 text-xs font-bold rounded-md bg-white text-slate-900 shadow-sm transition">Versi Sederhana</button>
+          <button type="button" id="btn-kode-profesional" onclick="setKodeVersion('profesional')" class="py-1.5 px-2 text-xs font-semibold rounded-md text-slate-600 hover:text-slate-900 transition">Profesional (BPKAD)</button>
         </div>
       </div>
 
-      <!-- 4. Kecamatan & Nomor Urut Awal -->
-      <div class="grid grid-cols-2 gap-2.5">
-        <div id="wrap-kecamatan">
-          <label class="block text-xs font-bold text-slate-700 mb-1">Kecamatan Lamsel</label>
-          <select id="select-kecamatan" onchange="generateKode()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
-            <option value="04">04 - Natar</option>
-            <option value="05">05 - Tanjung Bintang</option>
-            <option value="06">06 - Kalianda</option>
-            <option value="07">07 - Sidomulyo</option>
-            <option value="08">08 - Katibung</option>
-            <option value="09">09 - Penengahan</option>
-            <option value="10">10 - Palas</option>
-            <option value="11">11 - Jati Agung</option>
-            <option value="12">12 - Ketapang</option>
-            <option value="13">13 - Sragi</option>
-            <option value="14">14 - Raja Basa</option>
-            <option value="15" selected>15 - Candipuro</option>
-            <option value="16">16 - Merbau Mataram</option>
-            <option value="17">17 - Bakauheni</option>
-            <option value="18">18 - Tanjung Sari</option>
-            <option value="19">19 - Way Sulan</option>
-            <option value="20">20 - Way Panji</option>
-          </select>
-        </div>
-        <div id="wrap-urut">
-          <label class="block text-xs font-bold text-slate-700 mb-1">No. Urut Register</label>
-          <div class="flex gap-1">
-            <input type="number" id="input-urut" value="1" min="1" max="9999" oninput="generateKode()" class="w-full px-2 py-1.5 text-xs font-bold border border-slate-300 rounded-lg text-center" />
-            <button type="button" onclick="incrementUrut()" class="px-2 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold rounded-lg">+1</button>
-          </div>
+      <!-- 5. Nomor Urut Register -->
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">No. Urut Register Barang</label>
+        <div class="flex gap-1">
+          <input type="number" id="input-urut" value="1" min="1" max="9999" oninput="generateKode()" class="w-full px-2 py-1.5 text-xs font-bold border border-slate-300 rounded-lg text-center" />
+          <button type="button" onclick="incrementUrut()" class="px-3 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold rounded-lg">+1 Otomatis</button>
         </div>
       </div>
 
-      <!-- 5. Kategori Barang Lengkap, Terpisah & Opsi Lainnya -->
+      <!-- 6. Kategori Barang -->
       <div>
         <label class="block text-xs font-bold text-slate-700 mb-1">Klasifikasi Kode Barang</label>
         <select id="select-kategori" onchange="onKategoriChange()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
-          <optgroup label="Mebelair Ruang Kelas & Kantor (Terpisah)">
-            <option value="02.02.01.03.01|MJG|Meja Kerja Guru" selected>02.02.01.03.01 (MJG) — Meja Kerja Guru / Kantor</option>
-            <option value="02.02.01.03.02|MJS|Meja Siswa">02.02.01.03.02 (MJS) — Meja Siswa / Belajar</option>
-            <option value="02.02.01.03.03|KRG|Kursi Kerja Guru">02.02.01.03.03 (KRG) — Kursi Kerja Guru / Kantor</option>
-            <option value="02.02.01.03.04|KRS|Kursi Siswa">02.02.01.03.04 (KRS) — Kursi Siswa / Belajar</option>
-            <option value="02.02.01.04.01|LM|Lemari Arsip / Buku">02.02.01.04.01 (LM) — Lemari Arsip / Rak Buku</option>
-            <option value="02.02.01.04.02|PTL|Papan Tulis / Whiteboard">02.02.01.04.02 (PTL) — Papan Tulis / Whiteboard</option>
+          <optgroup label="Mebelair Ruang Kelas & Kantor">
+            <option value="02.02.01.03.01|MJG|Meja Kerja Guru" selected>02.02.01.03.01 (MJG) — Meja Kerja Guru</option>
+            <option value="02.02.01.03.02|MJS|Meja Siswa">02.02.01.03.02 (MJS) — Meja Siswa</option>
+            <option value="02.02.01.03.03|KRG|Kursi Kerja Guru">02.02.01.03.03 (KRG) — Kursi Kerja Guru</option>
+            <option value="02.02.01.03.04|KRS|Kursi Siswa">02.02.01.03.04 (KRS) — Kursi Siswa</option>
+            <option value="02.02.01.04.01|LM|Lemari Arsip / Buku">02.02.01.04.01 (LM) — Lemari Arsip / Rak</option>
+            <option value="02.02.01.04.02|PTL|Papan Tulis">02.02.01.04.02 (PTL) — Papan Tulis / Whiteboard</option>
           </optgroup>
           <optgroup label="Perpustakaan & Buku">
-            <option value="02.02.06.01.01|BKP|Buku Paket Pelajaran">02.02.06.01.01 (BKP) — Buku Paket / Teks Pelajaran</option>
-            <option value="02.02.06.01.02|BPR|Buku Perpustakaan">02.02.06.01.02 (BPR) — Buku Bacaan Perpustakaan</option>
+            <option value="02.02.06.01.01|BKP|Buku Paket Pelajaran">02.02.06.01.01 (BKP) — Buku Paket</option>
+            <option value="02.02.06.01.02|BPR|Buku Perpustakaan">02.02.06.01.02 (BPR) — Buku Bacaan</option>
           </optgroup>
-          <optgroup label="Elektronik & Perangkat TIK">
-            <option value="02.02.01.01.01|LP|Laptop">02.02.01.01.01 (LP) — Laptop / Notebook</option>
-            <option value="02.02.01.01.02|PC|Komputer PC">02.02.01.01.02 (PC) — Komputer Desktop / PC</option>
-            <option value="02.02.01.02.01|PR|Printer / Scanner">02.02.01.02.01 (PR) — Printer / Scanner</option>
-            <option value="02.02.01.06.01|PRJ|Proyektor / LCD">02.02.01.06.01 (PRJ) — Proyektor / LCD / Smart TV</option>
-            <option value="02.02.01.05.01|AC|AC / Kipas Angin">02.02.01.05.01 (AC) — AC / Kipas Angin</option>
-            <option value="02.02.01.07.01|SPK|Speaker / Sound System">02.02.01.07.01 (SPK) — Speaker / Sound System</option>
+          <optgroup label="Elektronik & TIK">
+            <option value="02.02.01.01.01|LP|Laptop">02.02.01.01.01 (LP) — Laptop</option>
+            <option value="02.02.01.01.02|PC|Komputer PC">02.02.01.01.02 (PC) — Komputer PC</option>
+            <option value="02.02.01.02.01|PR|Printer / Scanner">02.02.01.02.01 (PR) — Printer</option>
+            <option value="02.02.01.06.01|PRJ|Proyektor">02.02.01.06.01 (PRJ) — Proyektor / LCD</option>
+            <option value="02.02.01.05.01|AC|AC / Kipas">02.02.01.05.01 (AC) — AC / Kipas Angin</option>
           </optgroup>
-          <optgroup label="Sarana Lainnya & Kendaraan">
-            <option value="02.02.05.01.01|APR|Alat Peraga / Olahraga">02.02.05.01.01 (APR) — Alat Peraga / Olahraga</option>
-            <option value="02.02.02.01.01|R2|Kendaraan Roda 2">02.02.02.01.01 (R2) — Kendaraan Roda 2</option>
-            <option value="01.01.01.01|TNH|Tanah">01.01.01.01 (TNH) — Tanah</option>
-          </optgroup>
-          <optgroup label="Fleksibel / Custom">
-            <option value="CUSTOM|BRG|">✏️ Kategori Lainnya (Input Kode & Nama Barang Manual)</option>
+          <optgroup label="Custom / Lainnya">
+            <option value="CUSTOM|BRG|">✏️ Kategori Lainnya (Manual)</option>
           </optgroup>
         </select>
       </div>
 
-      <!-- BOX INPUT KODE MANUAL -->
-      <div id="custom-category-box" class="hidden bg-amber-50 border border-amber-300 p-2.5 rounded-lg space-y-2">
-        <div class="text-[11px] font-bold text-amber-900">✏️ Pengaturan Kode Kategori Manual</div>
+      <div id="custom-category-box" class="hidden bg-amber-50 border border-amber-300 p-2 rounded-lg space-y-2">
         <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-[10px] font-bold text-slate-700 mb-0.5">Singkatan (Versi Sederhana)</label>
-            <input type="text" id="input-custom-short" value="BRG" maxlength="8" oninput="this.value=this.value.toUpperCase();generateKode()" class="w-full px-2 py-1 text-xs font-mono-code font-bold border border-amber-300 rounded bg-white uppercase" />
-          </div>
-          <div>
-            <label class="block text-[10px] font-bold text-slate-700 mb-0.5">Kode BMD (Versi BPKAD)</label>
-            <input type="text" id="input-custom-long" value="02.02.09.01.01" oninput="generateKode()" class="w-full px-2 py-1 text-xs font-mono-code font-bold border border-amber-300 rounded bg-white" />
-          </div>
+          <input type="text" id="input-custom-short" value="BRG" maxlength="8" oninput="this.value=this.value.toUpperCase();generateKode()" placeholder="Singkatan" class="w-full px-2 py-1 text-xs font-mono font-bold border rounded uppercase bg-white" />
+          <input type="text" id="input-custom-long" value="02.02.09.01.01" oninput="generateKode()" placeholder="Kode BPKAD" class="w-full px-2 py-1 text-xs font-mono font-bold border rounded bg-white" />
         </div>
       </div>
 
-      <!-- Kode Final Preview -->
+      <!-- Kode Final -->
       <div class="bg-slate-50 border border-slate-200 p-2 rounded-lg">
-        <div class="flex justify-between items-center mb-1">
-          <label class="text-[10px] font-bold text-slate-600 uppercase">Kode BMD Terbentuk</label>
-          <span id="kode-mode-badge" class="text-[10px] font-semibold text-slate-700">Format Sederhana</span>
-        </div>
+        <label class="text-[10px] font-bold text-slate-600 uppercase block mb-1">Kode BMD Final (Bisa Edit Manual)</label>
         <input type="text" id="input-kode-final" value="18.01.15-MJG-001" oninput="updatePreview()" class="w-full px-2.5 py-1 text-xs font-mono-code font-bold bg-white border border-slate-300 rounded text-slate-900" />
       </div>
 
-      <!-- 6. Nama Barang & Tahun -->
+      <!-- Nama Barang & Tahun -->
       <div class="grid grid-cols-3 gap-2.5">
         <div class="col-span-2">
           <label class="block text-xs font-bold text-slate-700 mb-1">Nama / Spesifikasi Barang</label>
-          <input type="text" id="input-nama-barang" value="Meja Kerja Guru" oninput="updatePreview()" placeholder="Ketik nama barang..." class="w-full px-3 py-1.5 text-xs font-semibold border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-600 outline-none" />
+          <input type="text" id="input-nama-barang" value="Meja Kerja Guru" oninput="updatePreview()" class="w-full px-3 py-1.5 text-xs font-semibold border border-slate-300 rounded-lg outline-none" />
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Tahun</label>
@@ -236,7 +317,7 @@
         </div>
       </div>
 
-      <!-- 7. Jumlah Qty, Kondisi & Sumber Dana -->
+      <!-- Qty, Kondisi, Dana -->
       <div class="grid grid-cols-3 gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200">
         <div>
           <label class="block text-[11px] font-bold text-slate-800 mb-1">📦 Jumlah (Qty)</label>
@@ -256,96 +337,96 @@
             <option value="Dana BOS" selected>Dana BOS</option>
             <option value="DAK Fisik">DAK Fisik</option>
             <option value="Bantuan Pusat">Bantuan Pusat</option>
-            <option value="BOS Afirmasi">BOS Afirmasi</option>
-            <option value="APBD Lamsel">APBD Lamsel</option>
-            <option value="Dana Desa">Dana Desa</option>
-            <option value="Hibah">Hibah/Lainnya</option>
+            <option value="APBD / Yayasan">APBD / Yayasan</option>
           </select>
         </div>
       </div>
 
-      <!-- 8. Ukuran Ramping & Desain Stiker -->
+      <!-- Ukuran & Desain -->
       <div class="grid grid-cols-2 gap-2.5">
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Ukuran Stiker Ramping</label>
           <select id="select-ukuran" onchange="updateLayoutSettings()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
-            <option value="65x30" selected>Minimalis (65 x 30 mm)</option>
-            <option value="58x24">Ekstra Tipis (58 x 24 mm)</option>
-            <option value="75x35">Sedang Ramping (75 x 35 mm)</option>
+            <option value="55x22" selected>Sangat Ramping (55 x 22 mm)</option>
+            <option value="60x24">Ultra Ramping (60 x 24 mm)</option>
+            <option value="65x28">Standar (65 x 28 mm)</option>
           </select>
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Model Stiker</label>
           <select id="select-desain" onchange="updatePreview()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
-            <option value="pro-qr" selected>Profesional (QR Mini)</option>
-            <option value="pro-barcode">Profesional (Barcode)</option>
-            <option value="simple">Sederhana (Teks Ringkas)</option>
+            <option value="pro-qr">QR Code</option>
+            <option value="pro-barcode" selected>Barcode 1D (Anti-Potong)</option>
+            <option value="simple">Teks Ringkas</option>
           </select>
         </div>
       </div>
 
-      <!-- Tombol Tambah ke Ruangan Aktif -->
-      <button type="button" onclick="addItemsToCurrentRoom()" class="w-full py-2.5 bg-red-700 hover:bg-red-800 text-white font-bold text-xs rounded-lg shadow transition flex items-center justify-center gap-2">
-        <span>➕ Tambahkan ke Daftar <span id="btn-room-name-label">Ruang Kelas 1</span></span>
+      <!-- Tombol Simpan / Tambah ke Database -->
+      <button type="button" id="btn-save-item" onclick="saveItemToDatabase()" class="w-full py-2.5 bg-red-700 hover:bg-red-800 text-white font-bold text-xs rounded-lg shadow transition flex items-center justify-center gap-2">
+        <span>💾 Simpan ke Database Ruangan</span>
       </button>
     </section>
 
-    <!-- KOLOM KANAN: LIVE PREVIEW & LEMBAR CETAK RUANGAN AKTIF -->
+    <!-- KOLOM KANAN: LIVE PREVIEW & TABEL DATABASE INVENTARIS -->
     <section class="lg:col-span-7 space-y-5">
 
       <!-- Live Preview -->
       <div class="no-print bg-white rounded-xl shadow-sm border border-slate-200 p-4">
         <div class="flex items-center justify-between mb-2">
-          <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Pratinjau Stiker Minimalis (Lis Merah)</h2>
-          <span id="preview-size-label" class="text-[11px] text-red-700 font-bold">65 x 30 mm (Minimalis)</span>
+          <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Pratinjau Stiker Padat & Profesional</h2>
+          <span id="preview-size-label" class="text-[11px] text-red-700 font-bold">55 x 22 mm</span>
         </div>
-        <div class="bg-slate-100 border border-dashed border-slate-300 rounded-xl p-5 flex items-center justify-center min-h-[120px]">
+        <div class="bg-slate-100 border border-dashed border-slate-300 rounded-xl p-5 flex items-center justify-center min-h-[140px]">
           <div id="live-preview-container"></div>
         </div>
       </div>
 
-      <!-- RINGKASAN ISI RUANGAN YANG SEDANG DIDATA -->
+      <!-- TABEL DATABASE INVENTARIS -->
       <div class="no-print bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h2 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
-              🚪 Isi Inventaris: <span id="active-room-title" class="text-red-700">Ruang Kelas 1</span>
+              🗄️ Database Inventaris: <span id="db-room-title" class="text-red-700">Ruang Kelas 1</span>
             </h2>
-            <p class="text-[11px] text-slate-500">Daftar jenis & jumlah barang yang sudah masuk untuk ruangan ini</p>
+            <p class="text-[11px] text-slate-500">Tabel data ruangan aktif (bisa di-edit/hapus)</p>
           </div>
-          <button type="button" onclick="startNewRoomSession()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-lg transition">
-            🔄 Selesai & Mulai Ruangan Baru
+          <button type="button" onclick="clearDatabaseRoom()" class="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold rounded border border-red-200 transition">
+            🗑️ Kosongkan Ruang Ini
           </button>
         </div>
 
-        <!-- Ringkasan Jumlah Per Jenis Barang di Ruangan Ini -->
-        <div id="current-room-breakdown" class="flex flex-wrap gap-1.5 bg-slate-50 p-2.5 rounded-lg border border-slate-200 min-h-[42px] items-center">
-          <!-- Diisi via JS -->
+        <div class="max-h-56 overflow-y-auto border border-slate-200 rounded-lg">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-100 text-slate-700 sticky top-0 border-b border-slate-200">
+              <tr>
+                <th class="p-2 font-bold">No</th>
+                <th class="p-2 font-bold">Kode Aset</th>
+                <th class="p-2 font-bold">Nama Barang</th>
+                <th class="p-2 font-bold">Thn / Kondisi</th>
+                <th class="p-2 font-bold text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="database-table-body" class="divide-y divide-slate-100">
+              <!-- Diisi via JS -->
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <!-- AREA LEMBAR SIAP CETAK (KHUSUS RUANGAN AKTIF) -->
+      <!-- AREA LEMBAR SIAP CETAK -->
       <div id="print-area-wrapper" class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-        <!-- Header Ruangan (Ikut Tercetak Rapi di Bagian Atas Kertas Stiker) -->
         <div class="mb-3 pb-2 border-b-2 border-red-800 flex flex-wrap items-center justify-between gap-2">
           <div>
             <div class="text-xs font-extrabold text-slate-900 uppercase tracking-wide">
-              🚪 LABEL INVENTARIS — <span id="print-header-room" class="text-red-800">RUANG KELAS 1</span>
+              🚪 LEMBAR CETAK STIKER — <span id="print-header-room" class="text-red-800">RUANG KELAS 1</span>
             </div>
             <div id="print-header-opd" class="text-[11px] font-semibold text-slate-600">UPTD SDN 1 KARYA MULYA SARI</div>
           </div>
-
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded">
-              Total: <span id="room-sticker-count">0</span> Label
-            </span>
-            <button type="button" onclick="window.print()" class="no-print px-3.5 py-1.5 bg-red-700 hover:bg-red-800 text-white text-xs font-bold rounded-lg shadow">
-              🖨️ Cetak Ruangan Ini
-            </button>
-          </div>
+          <button type="button" onclick="window.print()" class="no-print px-3.5 py-1.5 bg-red-700 hover:bg-red-800 text-white text-xs font-bold rounded-lg shadow">
+            🖨️ Cetak Stiker Ruangan Ini
+          </button>
         </div>
-
-        <!-- Grid Stiker Ruangan Ini -->
         <div id="print-grid" class="flex flex-wrap gap-2 justify-start"></div>
       </div>
 
@@ -356,22 +437,16 @@
   <script>
     let kodeVersion = 'sederhana';
     let customLogoBase64 = localStorage.getItem('bmd_custom_logo') || '';
-    // Antrean khusus untuk 1 ruangan aktif yang sedang didata
-    let roomItems = JSON.parse(localStorage.getItem('bmd_active_room_items_v1')) || [
-      { id: 1, opd: 'UPTD SDN 1 KARYA MULYA SARI', kode: '18.01.15-MJG-001', nama: 'Meja Kerja Guru', tahun: '2024', kondisi: 'Baik', lokasi: 'Ruang Kelas 1', dana: 'Dana BOS', desain: 'pro-qr' },
-      { id: 2, opd: 'UPTD SDN 1 KARYA MULYA SARI', kode: '18.01.15-MJS-001', nama: 'Meja Siswa', tahun: '2024', kondisi: 'Baik', lokasi: 'Ruang Kelas 1', dana: 'Dana BOS', desain: 'pro-qr' },
-      { id: 3, opd: 'UPTD SDN 1 KARYA MULYA SARI', kode: '18.01.15-MJS-002', nama: 'Meja Siswa', tahun: '2024', kondisi: 'Baik', lokasi: 'Ruang Kelas 1', dana: 'Dana BOS', desain: 'pro-qr' }
+    
+    let inventoryDatabase = JSON.parse(localStorage.getItem('bmd_master_database_v13')) || [
+      { id: 1, pemda: 'PEMKAB LAMPUNG SELATAN', kecamatan: 'Candipuro', opd: 'UPTD SDN 1 KARYA MULYA SARI', kode: '18.01.15-MJG-001', nama: 'Meja Kerja Guru', tahun: '2024', kondisi: 'Baik', lokasi: 'Ruang Kelas 1', dana: 'Dana BOS', desain: 'pro-barcode' },
+      { id: 2, pemda: 'PEMKAB LAMPUNG SELATAN', kecamatan: 'Candipuro', opd: 'UPTD SDN 1 KARYA MULYA SARI', kode: '18.01.15-MJS-001', nama: 'Meja Siswa', tahun: '2024', kondisi: 'Baik', lokasi: 'Ruang Kelas 1', dana: 'Dana BOS', desain: 'pro-barcode' }
     ];
 
     window.addEventListener('DOMContentLoaded', () => {
-      if (customLogoBase64) {
-        applyLogoToUI(customLogoBase64);
-      }
-      // Pulihkan nomor urut terakhir jika ada
+      if (customLogoBase64) { applyLogoToUI(customLogoBase64); }
       const savedUrut = localStorage.getItem('bmd_last_urut');
-      if (savedUrut) {
-        document.getElementById('input-urut').value = savedUrut;
-      }
+      if (savedUrut) { document.getElementById('input-urut').value = savedUrut; }
       generateKode();
       renderAll();
     });
@@ -400,8 +475,51 @@
       }
     }
 
-    function setInstansi(nama) {
-      document.getElementById('input-opd').value = nama;
+    function exportDatabaseJSON() {
+      if (inventoryDatabase.length === 0) return alert('Database masih kosong.');
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(inventoryDatabase, null, 2));
+      const dlAnchor = document.createElement('a');
+      dlAnchor.setAttribute("href", dataStr);
+      dlAnchor.setAttribute("download", `database-generator-label-inventaris-${Date.now()}.json`);
+      document.body.appendChild(dlAnchor);
+      dlAnchor.click();
+      dlAnchor.remove();
+    }
+
+    function importDatabaseJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const importedData = JSON.parse(e.target.result);
+          if (Array.isArray(importedData)) {
+            inventoryDatabase = importedData;
+            saveAndRender();
+            alert('Berhasil memuat database! Data inventaris berhasil dipulihkan.');
+          } else {
+            alert('Format file JSON tidak valid.');
+          }
+        } catch (err) {
+          alert('Gagal membaca file JSON.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function onWilayahChange() {
+      const sel = document.getElementById('select-wilayah').value;
+      const kodeInput = document.getElementById('input-kode-wilayah');
+      const pemdaInput = document.getElementById('input-pemda');
+
+      if (sel !== 'CUSTOM_WILAYAH') {
+        const parts = sel.split('|');
+        if (parts.length === 2) {
+          kodeInput.value = parts[0];
+          pemdaInput.value = parts[1];
+        }
+      }
+      generateKode();
       updateRoomIdentity();
     }
 
@@ -416,54 +534,35 @@
     function onRuanganChange() {
       const sel = document.getElementById('select-ruangan').value;
       const customBox = document.getElementById('custom-room-box');
-      const manualInput = document.getElementById('input-ruangan-manual');
-
       if (sel === 'CUSTOM_ROOM') {
         customBox.classList.remove('hidden');
-        manualInput.focus();
       } else {
         customBox.classList.add('hidden');
       }
       updateRoomIdentity();
     }
 
-    // Ketika nama ruangan atau nama sekolah diganti, perbarui label yang ada di lembar aktif
     function updateRoomIdentity() {
       const roomName = getActiveRoomName();
-      const opdName = document.getElementById('input-opd').value.trim() || 'UPTD SDN 1 KARYA MULYA SARI';
+      const opdName = document.getElementById('input-opd').value.trim() || 'SATUAN PENDIDIKAN';
 
-      document.getElementById('btn-room-name-label').textContent = roomName;
-      document.getElementById('active-room-title').textContent = roomName;
+      document.getElementById('db-room-title').textContent = roomName;
       document.getElementById('print-header-room').textContent = roomName;
       document.getElementById('print-header-opd').textContent = opdName;
-
-      // Sinkronkan juga item yang sedang ada di lembar ruangan aktif ini
-      roomItems.forEach(item => {
-        item.lokasi = roomName;
-        item.opd = opdName;
-      });
-      saveAndRender();
+      renderAll();
     }
 
     function setKodeVersion(ver) {
       kodeVersion = ver;
       const btnSimple = document.getElementById('btn-kode-sederhana');
       const btnPro = document.getElementById('btn-kode-profesional');
-      const wrapKec = document.getElementById('wrap-kecamatan');
-      const badge = document.getElementById('kode-mode-badge');
 
       if (ver === 'sederhana') {
         btnSimple.className = 'py-1.5 px-2 text-xs font-bold rounded-md bg-white text-slate-900 shadow-sm transition';
         btnPro.className = 'py-1.5 px-2 text-xs font-semibold rounded-md text-slate-600 hover:text-slate-900 transition';
-        wrapKec.style.opacity = '1';
-        document.getElementById('select-kecamatan').disabled = false;
-        badge.textContent = 'Format Sederhana';
       } else {
         btnPro.className = 'py-1.5 px-2 text-xs font-bold rounded-md bg-white text-slate-900 shadow-sm transition';
         btnSimple.className = 'py-1.5 px-2 text-xs font-semibold rounded-md text-slate-600 hover:text-slate-900 transition';
-        wrapKec.style.opacity = '0.45';
-        document.getElementById('select-kecamatan').disabled = true;
-        badge.textContent = 'Format Profesional BPKAD';
       }
       generateKode();
     }
@@ -490,9 +589,7 @@
         namaInput.focus();
       } else {
         customBox.classList.add('hidden');
-        if (cat.defaultNama) {
-          namaInput.value = cat.defaultNama.trim();
-        }
+        if (cat.defaultNama) { namaInput.value = cat.defaultNama.trim(); }
       }
       generateKode();
     }
@@ -504,14 +601,15 @@
     }
 
     function generateKode() {
-      const kec = document.getElementById('select-kecamatan').value;
+      const kodeWilayah = document.getElementById('input-kode-wilayah').value.trim() || '18.01';
+      const kodeKec = document.getElementById('input-kode-kecamatan').value.trim() || '15';
       const cat = getSelectedCategoryCodes();
       const tahun = document.getElementById('input-tahun').value || '2024';
       const urut = String(document.getElementById('input-urut').value || '1').padStart(3, '0');
 
       const finalKode = kodeVersion === 'sederhana'
-        ? `18.01.${kec}-${cat.kodeSingkat}-${urut}`
-        : `18.01.${cat.kodeLengkap}.${tahun}.${urut}`;
+        ? `${kodeWilayah}.${kodeKec}-${cat.kodeSingkat}-${urut}`
+        : `${kodeWilayah}.${kodeKec}.${cat.kodeLengkap}.${tahun}.${urut}`;
 
       document.getElementById('input-kode-final').value = finalKode;
       updatePreview();
@@ -520,11 +618,11 @@
     function getSizeConfig() {
       const val = document.getElementById('select-ukuran').value;
       const map = {
-        '65x30': { w: '65mm', h: '30mm', qr: 38, headPad: '2px 5px', bodyPad: '2px 5px', titleSize: '7px', subSize: '6px', codeSize: '7.5px', nameSize: '8px', metaSize: '6px', logoSize: '10px', label: '65 x 30 mm (Minimalis)' },
-        '58x24': { w: '58mm', h: '24mm', qr: 30, headPad: '1.5px 4px', bodyPad: '1.5px 4px', titleSize: '6px', subSize: '5.5px', codeSize: '6.8px', nameSize: '7px', metaSize: '5.5px', logoSize: '8px', label: '58 x 24 mm (Ekstra Tipis)' },
-        '75x35': { w: '75mm', h: '35mm', qr: 44, headPad: '3px 6px', bodyPad: '3px 6px', titleSize: '8px', subSize: '6.8px', codeSize: '8.5px', nameSize: '9px', metaSize: '6.8px', logoSize: '11px', label: '75 x 35 mm (Sedang Ramping)' }
+        '55x22': { w: '55mm', h: '22mm', qr: 25, barWidth: 0.54, barHeight: 14, headPad: '0.8px 2px', bodyPad: '0.8px 2.5px', titleSize: '6.2px', subSize: '5.5px', codeSize: '7.2px', nameSize: '8px', metaSize: '5px', logoSize: '11.5px', label: '55 x 22 mm (Sangat Ramping)' },
+        '60x24': { w: '60mm', h: '24mm', qr: 28, barWidth: 0.60, barHeight: 16, headPad: '1px 2.5px', bodyPad: '1px 3px', titleSize: '6.8px', subSize: '6px', codeSize: '7.8px', nameSize: '8.8px', metaSize: '5.5px', logoSize: '13px', label: '60 x 24 mm (Ultra Ramping)' },
+        '65x28': { w: '65mm', h: '28mm', qr: 33, barWidth: 0.68, barHeight: 18, headPad: '1.2px 3px', bodyPad: '1.2px 3.5px', titleSize: '7.5px', subSize: '6.8px', codeSize: '8.5px', nameSize: '9.5px', metaSize: '6px', logoSize: '14.5px', label: '65 x 28 mm (Standar)' }
       };
-      return map[val] || map['65x30'];
+      return map[val] || map['55x22'];
     }
 
     function updateLayoutSettings() {
@@ -533,9 +631,12 @@
       renderAll();
     }
 
-    function getData() {
+    function getDataForm() {
       return {
-        opd: document.getElementById('input-opd').value.trim() || 'UPTD SDN 1 KARYA MULYA SARI',
+        pemda: document.getElementById('input-pemda').value.trim().toUpperCase() || 'PEMKAB LAMPUNG SELATAN',
+        kecamatan: document.getElementById('input-nama-kecamatan').value.trim() || 'Kecamatan',
+        opd: document.getElementById('input-opd').value.trim() || 'SATUAN PENDIDIKAN',
+        kode: document.getElementById('input-kode-final').value.trim() || '18.01.15-MJG-001',
         nama: document.getElementById('input-nama-barang').value.trim() || 'Barang Inventaris',
         tahun: document.getElementById('input-tahun').value.trim() || '2024',
         kondisi: document.getElementById('select-kondisi').value,
@@ -545,63 +646,171 @@
       };
     }
 
+    function saveItemToDatabase() {
+      const editIdx = parseInt(document.getElementById('edit-index').value, 10);
+      const data = getDataForm();
+      const qty = Math.max(1, parseInt(document.getElementById('input-qty').value || '1', 10));
+
+      if (editIdx > -1) {
+        inventoryDatabase[editIdx] = { ...inventoryDatabase[editIdx], ...data };
+        resetForm();
+      } else {
+        const kodeWilayah = document.getElementById('input-kode-wilayah').value.trim() || '18.01';
+        const kodeKec = document.getElementById('input-kode-kecamatan').value.trim() || '15';
+        const cat = getSelectedCategoryCodes();
+        const tahun = data.tahun;
+        let currentUrut = parseInt(document.getElementById('input-urut').value || '1', 10);
+
+        for (let i = 0; i < qty; i++) {
+          const urutStr = String(currentUrut).padStart(3, '0');
+          let kodeFinal = qty === 1 && data.kode ? data.kode : (kodeVersion === 'sederhana' ? `${kodeWilayah}.${kodeKec}-${cat.kodeSingkat}-${urutStr}` : `${kodeWilayah}.${kodeKec}.${cat.kodeLengkap}.${tahun}.${urutStr}`);
+
+          inventoryDatabase.push({
+            id: Date.now() + Math.random() + i,
+            pemda: data.pemda,
+            kecamatan: data.kecamatan,
+            opd: data.opd,
+            kode: kodeFinal,
+            nama: data.nama,
+            tahun: data.tahun,
+            kondisi: data.kondisi,
+            lokasi: data.lokasi,
+            dana: data.dana,
+            desain: data.desain
+          });
+          currentUrut++;
+        }
+        document.getElementById('input-urut').value = currentUrut;
+        localStorage.setItem('bmd_last_urut', currentUrut);
+        generateKode();
+      }
+
+      saveAndRender();
+    }
+
+    function editDatabaseItem(globalIndex) {
+      const item = inventoryDatabase[globalIndex];
+      if (!item) return;
+
+      document.getElementById('edit-index').value = globalIndex;
+      document.getElementById('form-title').textContent = '✏️ Edit Data Inventaris';
+      document.getElementById('btn-save-item').innerHTML = '<span>💾 Perbarui Data</span>';
+
+      if(item.pemda) document.getElementById('input-pemda').value = item.pemda;
+      if(item.kecamatan) document.getElementById('input-nama-kecamatan').value = item.kecamatan;
+      document.getElementById('input-opd').value = item.opd;
+      document.getElementById('input-kode-final').value = item.kode;
+      document.getElementById('input-nama-barang').value = item.nama;
+      document.getElementById('input-tahun').value = item.tahun;
+      document.getElementById('select-kondisi').value = item.kondisi;
+      document.getElementById('select-dana').value = item.dana;
+      document.getElementById('select-desain').value = item.desain;
+
+      const roomSelect = document.getElementById('select-ruangan');
+      let found = false;
+      for (let opt of roomSelect.options) {
+        if (opt.value === item.lokasi) { roomSelect.value = item.lokasi; found = true; break; }
+      }
+      if (!found) {
+        roomSelect.value = 'CUSTOM_ROOM';
+        document.getElementById('custom-room-box').classList.remove('hidden');
+        document.getElementById('input-ruangan-manual').value = item.lokasi;
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetForm() {
+      document.getElementById('edit-index').value = '-1';
+      document.getElementById('form-title').textContent = 'Form Input / Tambah Inventaris';
+      document.getElementById('btn-save-item').innerHTML = '<span>💾 Simpan ke Database Ruangan</span>';
+      document.getElementById('input-qty').value = '1';
+      generateKode();
+    }
+
+    function deleteDatabaseItem(globalIndex) {
+      if (confirm('Hapus barang ini dari database?')) {
+        inventoryDatabase.splice(globalIndex, 1);
+        saveAndRender();
+      }
+    }
+
+    function clearDatabaseRoom() {
+      const roomName = getActiveRoomName();
+      if (confirm(`Kosongkan semua inventaris di ruangan "${roomName}"?`)) {
+        inventoryDatabase = inventoryDatabase.filter(item => (item.lokasi || 'Ruang Umum') !== roomName);
+        saveAndRender();
+      }
+    }
+
+    function saveAndRender() {
+      localStorage.setItem('bmd_master_database_v13', JSON.stringify(inventoryDatabase));
+      renderAll();
+    }
+
     function createStickerCard(item, uid) {
       const cfg = getSizeConfig();
       const card = document.createElement('div');
-      card.className = 'bmd-sticker red-border rounded-xs';
+      card.className = 'bmd-sticker rounded-xs';
       card.style.width = cfg.w;
       card.style.height = cfg.h;
 
-      let badgeStyle = 'background:#dcfce7;color:#166534;';
-      if (item.kondisi === 'Rusak Ringan') badgeStyle = 'background:#fef9c3;color:#854d0e;';
-      if (item.kondisi === 'Rusak Berat') badgeStyle = 'background:#fee2e2;color:#991b1b;';
+      let badgeBg = '#dcfce7'; let badgeColor = '#166534';
+      if (item.kondisi === 'Rusak Ringan') { badgeBg = '#fef9c3'; badgeColor = '#854d0e'; }
+      if (item.kondisi === 'Rusak Berat') { badgeBg = '#fee2e2'; badgeColor = '#991b1b'; }
 
       const logoHtml = customLogoBase64 
-        ? `<img src="${customLogoBase64}" style="width:${cfg.logoSize};height:${cfg.logoSize};object-fit:contain;display:inline-block;vertical-align:middle;margin-right:2px;" />` 
-        : `🏛️`;
+        ? `<img src="${customLogoBase64}" style="width:${cfg.logoSize};height:${cfg.logoSize};object-fit:contain;vertical-align:middle;margin-right:2px;display:inline-block;" />` 
+        : `<span>🏛️</span>`;
+
+      const pemdaText = item.pemda || 'PEMERINTAH DAERAH';
 
       if (item.desain === 'simple') {
         card.innerHTML = `
-          <div style="background:#b91c1c;color:#ffffff;padding:${cfg.headPad};display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #fbbf24;">
-            <div style="font-size:${cfg.titleSize};font-weight:800;text-transform:uppercase;display:flex;align-items:center;gap:2px;white-space:nowrap;overflow:hidden;">${logoHtml} PEMKAB LAMPUNG SELATAN</div>
-            <div style="font-size:5.5px;font-weight:800;background:#fbbf24;color:#7f1d1d;padding:0.5px 3px;border-radius:1.5px;shrink:0;">BMD</div>
+          <div style="background:#991b1b;color:#ffffff;padding:${cfg.headPad};display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #fcd34d;">
+            <div style="display:flex;align-items:center;gap:2px;overflow:hidden;white-space:nowrap;">
+              ${logoHtml}
+              <span style="font-size:${cfg.titleSize};font-weight:900;letter-spacing:0.1px;text-transform:uppercase;">${escapeHtml(pemdaText)}</span>
+            </div>
+            <span style="font-size:4.5px;font-weight:900;background:#fcd34d;color:#7f1d1d;padding:0.2px 2px;border-radius:1px;">AST</span>
           </div>
-          <div style="flex:1;padding:${cfg.bodyPad};display:flex;flex-direction:column;justify-content:center;gap:1px;">
-            <div style="font-size:${cfg.subSize};font-weight:700;color:#475569;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.opd)}</div>
-            <div style="font-size:${cfg.nameSize};font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.nama)}</div>
-            <div class="font-mono-code" style="font-size:${cfg.codeSize};font-weight:800;color:#b91c1c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.kode)}</div>
-            <div style="display:flex;justify-content:space-between;align-items:center;font-size:${cfg.metaSize};font-weight:600;color:#475569;">
+          <div style="flex:1;padding:${cfg.bodyPad};display:flex;flex-direction:column;justify-content:space-between;gap:0.2px;">
+            <div style="font-size:${cfg.subSize};font-weight:800;color:#334155;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.opd)}</div>
+            <div style="font-size:${cfg.nameSize};font-weight:900;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1;">${escapeHtml(item.nama)}</div>
+            <div class="font-mono-code" style="font-size:${cfg.codeSize};font-weight:900;color:#991b1b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.kode)}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:${cfg.metaSize};font-weight:700;color:#334155;">
               <span>${escapeHtml(item.lokasi)} • ${escapeHtml(item.tahun)}</span>
-              <span style="${badgeStyle}padding:0 2.5px;border-radius:1.5px;">${escapeHtml(item.kondisi)}</span>
+              <span style="background:${badgeBg};color:${badgeColor};padding:0.2px 2px;border-radius:1px;font-weight:800;">${escapeHtml(item.kondisi)}</span>
             </div>
           </div>
         `;
       } else {
         card.innerHTML = `
-          <div style="background:#b91c1c;color:#ffffff;padding:${cfg.headPad};display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #fbbf24;">
-            <div style="line-height:1.05;overflow:hidden;">
-              <div style="font-size:${cfg.titleSize};font-weight:800;text-transform:uppercase;display:flex;align-items:center;gap:2px;white-space:nowrap;">${logoHtml} PEMKAB LAMPUNG SELATAN</div>
-              <div style="font-size:${cfg.subSize};font-weight:600;color:#fef08a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.opd)}</div>
+          <div style="background:#991b1b;color:#ffffff;padding:${cfg.headPad};display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #fcd34d;">
+            <div style="display:flex;align-items:center;gap:2px;overflow:hidden;white-space:nowrap;">
+              ${logoHtml}
+              <span style="font-size:${cfg.titleSize};font-weight:900;letter-spacing:0.1px;text-transform:uppercase;">${escapeHtml(pemdaText)}</span>
             </div>
-            <div style="font-size:5.5px;font-weight:800;background:#fbbf24;color:#7f1d1d;padding:0.5px 3px;border-radius:1.5px;shrink:0;">18.01</div>
+            <span style="font-size:4.5px;font-weight:900;background:#fcd34d;color:#7f1d1d;padding:0.2px 2px;border-radius:1px;">AST</span>
           </div>
-          <div style="flex:1;padding:${cfg.bodyPad};display:flex;align-items:center;justify-content:space-between;gap:4px;overflow:hidden;">
-            <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:1px;">
-              <div class="font-mono-code" style="font-size:${cfg.codeSize};font-weight:800;color:#b91c1c;background:#fef2f2;border:0.5px solid #fecaca;padding:0.5px 3px;border-radius:1.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+          <div style="flex:1;padding:${cfg.bodyPad};display:flex;align-items:center;justify-content:space-between;gap:1.5px;overflow:hidden;">
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-between;gap:0.2px;">
+              <div style="font-size:${cfg.subSize};font-weight:800;color:#334155;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.opd)}</div>
+              <div class="font-mono-code" style="font-size:${cfg.codeSize};font-weight:900;color:#991b1b;background:#fef2f2;border:0.5px solid #fecaca;padding:0.2px 2px;border-radius:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                 ${escapeHtml(item.kode)}
               </div>
-              <div style="font-size:${cfg.nameSize};font-weight:800;color:#0f172a;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              <div style="font-size:${cfg.nameSize};font-weight:900;color:#0f172a;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                 ${escapeHtml(item.nama)}
               </div>
-              <div style="display:flex;align-items:center;gap:3px;font-size:${cfg.metaSize};font-weight:600;color:#334155;">
+              <div style="display:flex;align-items:center;gap:2px;font-size:${cfg.metaSize};font-weight:700;color:#1e293b;">
                 <span>Thn: <b>${escapeHtml(item.tahun)}</b></span> | 
-                <span style="${badgeStyle}padding:0 2.5px;border-radius:1.5px;font-weight:700;">${escapeHtml(item.kondisi)}</span>
+                <span style="background:${badgeBg};color:${badgeColor};padding:0.2px 2px;border-radius:1px;font-weight:800;">${escapeHtml(item.kondisi)}</span>
               </div>
-              <div style="font-size:${cfg.metaSize};color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              <div style="font-size:${cfg.metaSize};color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700;">
                 <b>${escapeHtml(item.lokasi)}</b> • ${escapeHtml(item.dana)}
               </div>
             </div>
-            <div id="code-${uid}" style="shrink:0;display:flex;align-items:center;justify-content:center;"></div>
+            <div id="code-${uid}" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;max-width:44%;"></div>
           </div>
         `;
 
@@ -611,12 +820,24 @@
           if (item.desain === 'pro-barcode') {
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             el.appendChild(svg);
-            try {
-              JsBarcode(svg, item.kode, { format: 'CODE128', width: 0.85, height: 22, displayValue: false, margin: 0 });
+            try { 
+              JsBarcode(svg, item.kode, { 
+                format: 'CODE128', 
+                width: cfg.barWidth, 
+                height: cfg.barHeight, 
+                displayValue: false, 
+                margin: 0 
+              }); 
             } catch (e) {}
           } else {
-            const payload = `PEMKAB LAMPUNG SELATAN\nUnit: ${item.opd}\nRuangan: ${item.lokasi}\nKode: ${item.kode}\nBarang: ${item.nama}\nTahun: ${item.tahun} | Kondisi: ${item.kondisi}\nSumber Dana: ${item.dana}`;
-            new QRCode(el, { text: payload, width: cfg.qr, height: cfg.qr, colorDark: '#0f172a', colorLight: '#ffffff' });
+            new QRCode(el, { 
+              text: item.kode, 
+              width: cfg.qr, 
+              height: cfg.qr, 
+              colorDark: '#0f172a', 
+              colorLight: '#ffffff',
+              correctLevel: QRCode.CorrectLevel.L 
+            });
           }
         }, 0);
       }
@@ -627,126 +848,44 @@
     function updatePreview() {
       const container = document.getElementById('live-preview-container');
       container.innerHTML = '';
-      const dummyItem = {
-        ...getData(),
-        kode: document.getElementById('input-kode-final').value
-      };
+      const dummyItem = { ...getDataForm(), kode: document.getElementById('input-kode-final').value };
       container.appendChild(createStickerCard(dummyItem, 'live'));
     }
 
-    function addItemsToCurrentRoom() {
-      const baseData = getData();
-      const qty = Math.max(1, parseInt(document.getElementById('input-qty').value || '1', 10));
-      const kec = document.getElementById('select-kecamatan').value;
-      const cat = getSelectedCategoryCodes();
-      const tahun = baseData.tahun;
-      const manualCodeVal = document.getElementById('input-kode-final').value.trim();
-
-      let currentUrut = parseInt(document.getElementById('input-urut').value || '1', 10);
-
-      for (let i = 0; i < qty; i++) {
-        const urutStr = String(currentUrut).padStart(3, '0');
-        let kodeFinal = '';
-
-        if (qty === 1 && manualCodeVal) {
-          kodeFinal = manualCodeVal;
-        } else {
-          kodeFinal = kodeVersion === 'sederhana'
-            ? `18.01.${kec}-${cat.kodeSingkat}-${urutStr}`
-            : `18.01.${cat.kodeLengkap}.${tahun}.${urutStr}`;
-        }
-
-        roomItems.push({
-          id: Date.now() + Math.random() + i,
-          opd: baseData.opd,
-          kode: kodeFinal,
-          nama: baseData.nama,
-          tahun: baseData.tahun,
-          kondisi: baseData.kondisi,
-          lokasi: baseData.lokasi,
-          dana: baseData.dana,
-          desain: baseData.desain
-        });
-
-        currentUrut++;
-      }
-
-      document.getElementById('input-urut').value = currentUrut;
-      localStorage.setItem('bmd_last_urut', currentUrut);
-      generateKode();
-      saveAndRender();
-    }
-
-    function removeBarangGroupFromRoom(namaBarang) {
-      roomItems = roomItems.filter(item => item.nama !== namaBarang);
-      saveAndRender();
-    }
-
-    function startNewRoomSession() {
-      if (roomItems.length > 0 && !confirm('Lembar cetak ruangan ini akan dikosongkan agar Anda bisa mulai mendata ruangan berikutnya (Nomor urut kode barang tetap melanjutkan). Lanjutkan?')) {
-        return;
-      }
-      roomItems = [];
-      saveAndRender();
-      // Fokuskan ke pilihan ruangan agar pengguna langsung memilih ruang berikutnya
-      const selRuang = document.getElementById('select-ruangan');
-      selRuang.focus();
-    }
-
-    function saveAndRender() {
-      localStorage.setItem('bmd_active_room_items_v1', JSON.stringify(roomItems));
-      renderAll();
-    }
-
     function renderAll() {
-      const roomName = getActiveRoomName();
-      const opdName = document.getElementById('input-opd').value.trim() || 'UPTD SDN 1 KARYA MULYA SARI';
-
-      document.getElementById('btn-room-name-label').textContent = roomName;
-      document.getElementById('active-room-title').textContent = roomName;
-      document.getElementById('print-header-room').textContent = roomName;
-      document.getElementById('print-header-opd').textContent = opdName;
-      document.getElementById('total-print-badge').textContent = roomItems.length;
-      document.getElementById('room-sticker-count').textContent = roomItems.length;
-
       updatePreview();
+      const currentRoom = getActiveRoomName();
 
-      // Render ringkasan jumlah per jenis barang di ruangan aktif
-      const breakdownEl = document.getElementById('current-room-breakdown');
+      const roomItems = inventoryDatabase.filter(item => (item.lokasi || 'Ruang Umum') === currentRoom);
+
+      document.getElementById('total-print-badge').textContent = roomItems.length;
+
+      const tbody = document.getElementById('database-table-body');
       if (roomItems.length === 0) {
-        breakdownEl.innerHTML = `<span class="text-xs text-slate-400">Belum ada barang di ruangan <b>${escapeHtml(roomName)}</b>. Silakan masukkan jenis barang & jumlahnya di sebelah kiri.</span>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada data barang di ${escapeHtml(currentRoom)}. Silakan input di sebelah kiri.</td></tr>`;
       } else {
-        const counts = {};
-        roomItems.forEach(item => {
-          counts[item.nama] = (counts[item.nama] || 0) + 1;
-        });
-
-        breakdownEl.innerHTML = Object.entries(counts).map(([nama, jml]) => `
-          <span class="inline-flex items-center gap-1.5 bg-white border border-slate-300 text-slate-800 px-2.5 py-1 rounded-md text-xs font-semibold shadow-2xs">
-            <span><b class="text-red-700">${jml}x</b> ${escapeHtml(nama)}</span>
-            <button type="button" onclick="removeBarangGroupFromRoom('${escapeHtml(nama).replace(/'/g, "\\'")}')" title="Hapus jenis barang ini dari ruangan" class="text-slate-400 hover:text-red-600 font-bold ml-1">✕</button>
-          </span>
-        `).join('');
+        tbody.innerHTML = roomItems.map((item, localIdx) => {
+          const globalIdx = inventoryDatabase.findIndex(d => d.id === item.id);
+          return `
+            <tr class="hover:bg-slate-50 border-b border-slate-100">
+              <td class="p-2 font-bold text-slate-500">${localIdx + 1}</td>
+              <td class="p-2 font-mono-code font-bold text-red-800">${escapeHtml(item.kode)}</td>
+              <td class="p-2 font-semibold text-slate-900">${escapeHtml(item.nama)}</td>
+              <td class="p-2 text-slate-600">${escapeHtml(item.tahun)} • ${escapeHtml(item.kondisi)}</td>
+              <td class="p-2 text-center flex items-center justify-center gap-1.5">
+                <button onclick="editDatabaseItem(${globalIdx})" class="px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold rounded text-[10px]">Edit</button>
+                <button onclick="deleteDatabaseItem(${globalIdx})" class="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded text-[10px]">Hapus</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
       }
 
-      // Render grid stiker siap cetak untuk ruangan aktif
       const grid = document.getElementById('print-grid');
       grid.innerHTML = '';
       roomItems.forEach((item, idx) => {
         grid.appendChild(createStickerCard(item, `print-${idx}-${item.id}`));
       });
-    }
-
-    function exportCSV() {
-      if (roomItems.length === 0) return alert('Daftar ruangan masih kosong.');
-      const roomName = getActiveRoomName().replace(/[^a-zA-Z0-9_-]/g, '_');
-      const csv = 'Ruangan,OPD,KodeBMD,NamaBarang,Tahun,Kondisi,SumberDana\n' +
-        roomItems.map(i => `"${i.lokasi}","${i.opd}","${i.kode}","${i.nama}","${i.tahun}","${i.kondisi}","${i.dana}"`).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `KIR-Label-${roomName}.csv`;
-      a.click();
     }
 
     function escapeHtml(str) {
