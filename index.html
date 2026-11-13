@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LabelBMD Lamsel — Generator Label Inventaris Pemkab Lampung Selatan</title>
+  <title>LabelBMD Lamsel — Pendataan & Cetak Label Per Ruangan (KIR)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
@@ -12,6 +12,7 @@
     body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
     .font-mono-code { font-family: 'JetBrains Mono', monospace; }
 
+    /* Stiker Minimalis Lis Merah */
     .bmd-sticker {
       background: #ffffff;
       color: #0f172a;
@@ -22,14 +23,16 @@
       flex-direction: column;
       justify-content: space-between;
     }
-    .bmd-sticker.with-border { border: 1.5px solid #0f172a; }
+    .bmd-sticker.red-border {
+      border: 1.6px solid #b91c1c;
+    }
 
     @media print {
-      @page { size: A4 portrait; margin: 8mm; }
+      @page { size: A4 portrait; margin: 7mm; }
       body { background: #ffffff !important; margin: 0 !important; }
       .no-print { display: none !important; }
       #print-area-wrapper { border: none !important; box-shadow: none !important; padding: 0 !important; }
-      #print-grid { display: flex !important; flex-wrap: wrap !important; gap: 8px !important; }
+      #print-grid { display: flex !important; flex-wrap: wrap !important; gap: 5px !important; }
       .bmd-sticker { break-inside: avoid !important; page-break-inside: avoid !important; }
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
@@ -37,28 +40,28 @@
 </head>
 <body class="text-slate-800 antialiased">
 
-  <!-- HEADER -->
-  <header class="no-print bg-emerald-900 text-white shadow sticky top-0 z-40">
+  <!-- HEADER APLIKASI -->
+  <header class="no-print bg-slate-900 text-white shadow sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-3">
-        <div id="header-logo-container" class="w-10 h-10 rounded-lg bg-amber-400 text-emerald-950 flex items-center justify-center font-black shadow-inner overflow-hidden border border-amber-300">
+        <div id="header-logo-container" class="w-9 h-9 rounded-lg bg-white text-slate-900 flex items-center justify-center font-black shadow-inner overflow-hidden border border-slate-600">
           <img id="header-logo-img" src="" alt="Logo" class="w-full h-full object-contain hidden" />
-          <span id="header-logo-fallback" class="text-xs">🏛️</span>
+          <span id="header-logo-fallback" class="text-sm">🏛️</span>
         </div>
         <div>
           <div class="flex items-center gap-2">
             <h1 class="font-bold text-base leading-tight">LabelBMD Lamsel</h1>
-            <span class="text-[10px] bg-emerald-800 text-amber-300 px-1.5 py-0.5 rounded font-semibold border border-emerald-600">Kab. Lampung Selatan</span>
+            <span class="text-[10px] bg-slate-800 text-slate-200 px-2 py-0.5 rounded font-semibold border border-slate-700">Kab. Lampung Selatan (18.01)</span>
           </div>
-          <p class="text-[11px] text-emerald-200">Generator Stiker Inventaris Barang Milik Daerah (18.01)</p>
+          <p class="text-[11px] text-slate-400">Pendataan & Cetak Label Inventaris Per Ruangan (KIR)</p>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="exportCSV()" class="px-3 py-1.5 text-xs font-semibold bg-emerald-800 hover:bg-emerald-700 border border-emerald-600 rounded-lg transition">
-          📥 Ekspor CSV
+        <button onclick="exportCSV()" class="px-3 py-1.5 text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg transition">
+          📥 Ekspor CSV Ruangan Ini
         </button>
-        <button onclick="window.print()" class="px-4 py-1.5 text-xs font-bold bg-amber-400 hover:bg-amber-300 text-emerald-950 rounded-lg shadow transition">
-          🖨️ Cetak Stiker (<span id="total-print-badge">0</span>)
+        <button onclick="window.print()" class="px-4 py-1.5 text-xs font-bold bg-red-700 hover:bg-red-600 text-white rounded-lg shadow transition">
+          🖨️ Cetak Ruangan Ini (<span id="total-print-badge">0</span>)
         </button>
       </div>
     </div>
@@ -67,31 +70,60 @@
   <!-- KONTEN UTAMA: GRID 2 KOLOM -->
   <main class="max-w-7xl mx-auto px-4 py-5 grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
-    <!-- KOLOM KIRI: FORM INPUT -->
-    <section class="no-print lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3.5">
-      <div class="border-b border-slate-100 pb-2.5 flex items-center justify-between">
-        <h2 class="text-xs font-extrabold text-emerald-900 uppercase tracking-wider">Pengaturan & Input Barang</h2>
-        <button type="button" onclick="setInstansi('UPTD SDN 1 KARYA MULYA SARI')" class="text-[10px] px-2 py-0.5 bg-slate-100 hover:bg-emerald-50 text-slate-700 rounded font-medium">Reset Sekolah</button>
+    <!-- KOLOM KIRI: FORM PENDATAAN PER RUANGAN -->
+    <section class="no-print lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3">
+      <div class="border-b border-slate-100 pb-2 flex items-center justify-between">
+        <h2 class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">Langkah 1: Tentukan Ruangan & Barang</h2>
+        <button type="button" onclick="setInstansi('UPTD SDN 1 KARYA MULYA SARI')" class="text-[10px] px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded font-medium">Reset Sekolah</button>
       </div>
 
       <!-- UPLOAD LOGO PEMDA -->
-      <div class="bg-emerald-50/60 border border-emerald-200 p-2.5 rounded-lg">
-        <label class="block text-xs font-bold text-emerald-900 mb-1">🖼️ Unggah Logo Pemda Lampung Selatan</label>
-        <input type="file" id="input-logo-file" accept="image/*" onchange="handleLogoUpload(event)" class="w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-emerald-700 file:text-white hover:file:bg-emerald-800 cursor-pointer" />
-        <p class="text-[10px] text-emerald-700 mt-1">Pilih file logo (.png / .jpg) yang ingin ditampilkan pada stiker label.</p>
+      <div class="bg-slate-50 border border-slate-200 p-2 rounded-lg">
+        <label class="block text-xs font-bold text-slate-700 mb-1">🖼️ Logo Pemda Lampung Selatan</label>
+        <input type="file" id="input-logo-file" accept="image/*" onchange="handleLogoUpload(event)" class="w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 cursor-pointer" />
       </div>
 
       <!-- 1. Identitas Sekolah / OPD -->
       <div>
         <label class="block text-xs font-bold text-slate-700 mb-1">Nama Sekolah / OPD / Desa</label>
-        <input type="text" id="input-opd" value="UPTD SDN 1 KARYA MULYA SARI" oninput="updatePreview()" class="w-full px-3 py-1.5 text-xs font-semibold border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 outline-none" />
+        <input type="text" id="input-opd" value="UPTD SDN 1 KARYA MULYA SARI" oninput="updateRoomIdentity()" class="w-full px-3 py-1.5 text-xs font-semibold border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-700 outline-none" />
       </div>
 
-      <!-- 2. Pilihan Versi Pengkodean -->
+      <!-- 2. PILIHAN RUANGAN YANG SEDANG DIDATA (+ OPSI RUANG LAINNYA) -->
+      <div class="bg-red-50/80 border border-red-200 p-3 rounded-lg space-y-2">
+        <div class="flex items-center justify-between">
+          <label class="block text-xs font-extrabold text-red-900">🚪 Ruangan yang Sedang Didata</label>
+          <span class="text-[10px] bg-red-100 text-red-800 px-1.5 py-0.5 rounded font-bold">Aktif</span>
+        </div>
+
+        <select id="select-ruangan" onchange="onRuanganChange()" class="w-full px-2.5 py-1.5 text-xs font-bold border border-red-300 rounded-lg bg-white text-slate-900 focus:ring-2 focus:ring-red-600 outline-none">
+          <option value="Ruang Kelas 1" selected>Ruang Kelas 1</option>
+          <option value="Ruang Kelas 2">Ruang Kelas 2</option>
+          <option value="Ruang Kelas 3">Ruang Kelas 3</option>
+          <option value="Ruang Kelas 4">Ruang Kelas 4</option>
+          <option value="Ruang Kelas 5">Ruang Kelas 5</option>
+          <option value="Ruang Kelas 6">Ruang Kelas 6</option>
+          <option value="Ruang Guru">Ruang Guru</option>
+          <option value="Ruang Kepala Sekolah">Ruang Kepala Sekolah</option>
+          <option value="Perpustakaan">Perpustakaan</option>
+          <option value="Ruang TU / Operator">Ruang TU / Operator</option>
+          <option value="Ruang UKS">Ruang UKS</option>
+          <option value="Gudang Sekolah">Gudang Sekolah</option>
+          <option value="CUSTOM_ROOM">✏️ Ruang Lainnya (Input Nama Ruang Manual)</option>
+        </select>
+
+        <!-- Kotak Input Manual Muncul Saat Pilih "Ruang Lainnya" -->
+        <div id="custom-room-box" class="hidden pt-1">
+          <label class="block text-[10px] font-bold text-red-900 mb-0.5">Ketik Nama Ruangan Manual:</label>
+          <input type="text" id="input-ruangan-manual" placeholder="Misal: Laboratorium Komputer / Mushola" oninput="updateRoomIdentity()" class="w-full px-2.5 py-1.5 text-xs font-bold border border-red-400 rounded-lg bg-white text-slate-900 focus:ring-2 focus:ring-red-600 outline-none" />
+        </div>
+      </div>
+
+      <!-- 3. Pilihan Versi Pengkodean -->
       <div>
         <label class="block text-xs font-bold text-slate-700 mb-1">Versi Format Kode BMD</label>
         <div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-lg">
-          <button type="button" id="btn-kode-sederhana" onclick="setKodeVersion('sederhana')" class="py-1.5 px-2 text-xs font-bold rounded-md bg-white text-emerald-800 shadow-sm transition">
+          <button type="button" id="btn-kode-sederhana" onclick="setKodeVersion('sederhana')" class="py-1.5 px-2 text-xs font-bold rounded-md bg-white text-slate-900 shadow-sm transition">
             Versi Sederhana
           </button>
           <button type="button" id="btn-kode-profesional" onclick="setKodeVersion('profesional')" class="py-1.5 px-2 text-xs font-semibold rounded-md text-slate-600 hover:text-slate-900 transition">
@@ -100,7 +132,7 @@
         </div>
       </div>
 
-      <!-- 3. Kecamatan & Nomor Urut Awal -->
+      <!-- 4. Kecamatan & Nomor Urut Awal -->
       <div class="grid grid-cols-2 gap-2.5">
         <div id="wrap-kecamatan">
           <label class="block text-xs font-bold text-slate-700 mb-1">Kecamatan Lamsel</label>
@@ -125,44 +157,78 @@
           </select>
         </div>
         <div id="wrap-urut">
-          <label class="block text-xs font-bold text-slate-700 mb-1">No. Urut Mulai</label>
+          <label class="block text-xs font-bold text-slate-700 mb-1">No. Urut Register</label>
           <div class="flex gap-1">
             <input type="number" id="input-urut" value="1" min="1" max="9999" oninput="generateKode()" class="w-full px-2 py-1.5 text-xs font-bold border border-slate-300 rounded-lg text-center" />
-            <button type="button" onclick="incrementUrut()" class="px-2 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-xs font-bold rounded-lg">+1</button>
+            <button type="button" onclick="incrementUrut()" class="px-2 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold rounded-lg">+1</button>
           </div>
         </div>
       </div>
 
-      <!-- 4. Kategori Barang -->
+      <!-- 5. Kategori Barang Lengkap, Terpisah & Opsi Lainnya -->
       <div>
         <label class="block text-xs font-bold text-slate-700 mb-1">Klasifikasi Kode Barang</label>
-        <select id="select-kategori" onchange="onKategoriChange()" class="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
-          <option value="02.02.01.01.01|LP|Laptop / Komputer" selected>02.02.01.01.01 (LP) — Laptop / Komputer</option>
-          <option value="02.02.01.02.01|PR|Printer / Scanner">02.02.01.02.01 (PR) — Printer / Scanner</option>
-          <option value="02.02.01.03.01|MJ|Meja Kerja">02.02.01.03.01 (MJ) — Meja Kerja / Siswa</option>
-          <option value="02.02.01.03.02|KR|Kursi Kerja">02.02.01.03.02 (KR) — Kursi Kerja / Siswa</option>
-          <option value="02.02.01.04.01|LM|Lemari Arsip">02.02.01.04.01 (LM) — Lemari Arsip / Rak</option>
-          <option value="02.02.01.05.01|AC|AC / Kipas">02.02.01.05.01 (AC) — AC / Pendingin Ruangan</option>
-          <option value="02.02.01.06.01|PRJ|Proyektor">02.02.01.06.01 (PRJ) — Proyektor / LCD</option>
-          <option value="02.02.02.01.01|R2|Kendaraan Roda 2">02.02.02.01.01 (R2) — Kendaraan Roda 2</option>
-          <option value="01.01.01.01|TNH|Tanah">01.01.01.01 (TNH) — Tanah</option>
+        <select id="select-kategori" onchange="onKategoriChange()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
+          <optgroup label="Mebelair Ruang Kelas & Kantor (Terpisah)">
+            <option value="02.02.01.03.01|MJG|Meja Kerja Guru" selected>02.02.01.03.01 (MJG) — Meja Kerja Guru / Kantor</option>
+            <option value="02.02.01.03.02|MJS|Meja Siswa">02.02.01.03.02 (MJS) — Meja Siswa / Belajar</option>
+            <option value="02.02.01.03.03|KRG|Kursi Kerja Guru">02.02.01.03.03 (KRG) — Kursi Kerja Guru / Kantor</option>
+            <option value="02.02.01.03.04|KRS|Kursi Siswa">02.02.01.03.04 (KRS) — Kursi Siswa / Belajar</option>
+            <option value="02.02.01.04.01|LM|Lemari Arsip / Buku">02.02.01.04.01 (LM) — Lemari Arsip / Rak Buku</option>
+            <option value="02.02.01.04.02|PTL|Papan Tulis / Whiteboard">02.02.01.04.02 (PTL) — Papan Tulis / Whiteboard</option>
+          </optgroup>
+          <optgroup label="Perpustakaan & Buku">
+            <option value="02.02.06.01.01|BKP|Buku Paket Pelajaran">02.02.06.01.01 (BKP) — Buku Paket / Teks Pelajaran</option>
+            <option value="02.02.06.01.02|BPR|Buku Perpustakaan">02.02.06.01.02 (BPR) — Buku Bacaan Perpustakaan</option>
+          </optgroup>
+          <optgroup label="Elektronik & Perangkat TIK">
+            <option value="02.02.01.01.01|LP|Laptop">02.02.01.01.01 (LP) — Laptop / Notebook</option>
+            <option value="02.02.01.01.02|PC|Komputer PC">02.02.01.01.02 (PC) — Komputer Desktop / PC</option>
+            <option value="02.02.01.02.01|PR|Printer / Scanner">02.02.01.02.01 (PR) — Printer / Scanner</option>
+            <option value="02.02.01.06.01|PRJ|Proyektor / LCD">02.02.01.06.01 (PRJ) — Proyektor / LCD / Smart TV</option>
+            <option value="02.02.01.05.01|AC|AC / Kipas Angin">02.02.01.05.01 (AC) — AC / Kipas Angin</option>
+            <option value="02.02.01.07.01|SPK|Speaker / Sound System">02.02.01.07.01 (SPK) — Speaker / Sound System</option>
+          </optgroup>
+          <optgroup label="Sarana Lainnya & Kendaraan">
+            <option value="02.02.05.01.01|APR|Alat Peraga / Olahraga">02.02.05.01.01 (APR) — Alat Peraga / Olahraga</option>
+            <option value="02.02.02.01.01|R2|Kendaraan Roda 2">02.02.02.01.01 (R2) — Kendaraan Roda 2</option>
+            <option value="01.01.01.01|TNH|Tanah">01.01.01.01 (TNH) — Tanah</option>
+          </optgroup>
+          <optgroup label="Fleksibel / Custom">
+            <option value="CUSTOM|BRG|">✏️ Kategori Lainnya (Input Kode & Nama Barang Manual)</option>
+          </optgroup>
         </select>
       </div>
 
-      <!-- Kode Final Preview -->
-      <div class="bg-emerald-50 border border-emerald-200 p-2 rounded-lg">
-        <div class="flex justify-between items-center mb-1">
-          <label class="text-[10px] font-bold text-emerald-800 uppercase">Contoh Kode BMD Pertama</label>
-          <span id="kode-mode-badge" class="text-[10px] font-semibold text-emerald-700">Format Sederhana</span>
+      <!-- BOX INPUT KODE MANUAL -->
+      <div id="custom-category-box" class="hidden bg-amber-50 border border-amber-300 p-2.5 rounded-lg space-y-2">
+        <div class="text-[11px] font-bold text-amber-900">✏️ Pengaturan Kode Kategori Manual</div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-700 mb-0.5">Singkatan (Versi Sederhana)</label>
+            <input type="text" id="input-custom-short" value="BRG" maxlength="8" oninput="this.value=this.value.toUpperCase();generateKode()" class="w-full px-2 py-1 text-xs font-mono-code font-bold border border-amber-300 rounded bg-white uppercase" />
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-700 mb-0.5">Kode BMD (Versi BPKAD)</label>
+            <input type="text" id="input-custom-long" value="02.02.09.01.01" oninput="generateKode()" class="w-full px-2 py-1 text-xs font-mono-code font-bold border border-amber-300 rounded bg-white" />
+          </div>
         </div>
-        <input type="text" id="input-kode-final" value="18.01.15-LP-001" readonly class="w-full px-2.5 py-1 text-xs font-mono-code font-bold bg-white border border-emerald-400 rounded text-emerald-950" />
       </div>
 
-      <!-- 5. Nama Barang, Tahun & Jumlah Qty -->
+      <!-- Kode Final Preview -->
+      <div class="bg-slate-50 border border-slate-200 p-2 rounded-lg">
+        <div class="flex justify-between items-center mb-1">
+          <label class="text-[10px] font-bold text-slate-600 uppercase">Kode BMD Terbentuk</label>
+          <span id="kode-mode-badge" class="text-[10px] font-semibold text-slate-700">Format Sederhana</span>
+        </div>
+        <input type="text" id="input-kode-final" value="18.01.15-MJG-001" oninput="updatePreview()" class="w-full px-2.5 py-1 text-xs font-mono-code font-bold bg-white border border-slate-300 rounded text-slate-900" />
+      </div>
+
+      <!-- 6. Nama Barang & Tahun -->
       <div class="grid grid-cols-3 gap-2.5">
         <div class="col-span-2">
-          <label class="block text-xs font-bold text-slate-700 mb-1">Nama / Merk Barang</label>
-          <input type="text" id="input-nama-barang" value="Kursi Siswa Kayu" oninput="updatePreview()" class="w-full px-3 py-1.5 text-xs font-semibold border border-slate-300 rounded-lg" />
+          <label class="block text-xs font-bold text-slate-700 mb-1">Nama / Spesifikasi Barang</label>
+          <input type="text" id="input-nama-barang" value="Meja Kerja Guru" oninput="updatePreview()" placeholder="Ketik nama barang..." class="w-full px-3 py-1.5 text-xs font-semibold border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-600 outline-none" />
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Tahun</label>
@@ -170,87 +236,117 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-2.5 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
+      <!-- 7. Jumlah Qty, Kondisi & Sumber Dana -->
+      <div class="grid grid-cols-3 gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200">
         <div>
-          <label class="block text-xs font-bold text-amber-900 mb-1">📦 Jumlah Label (Qty)</label>
-          <input type="number" id="input-qty" value="10" min="1" max="200" class="w-full px-2.5 py-1.5 text-xs font-bold border border-amber-300 rounded-lg bg-white" />
+          <label class="block text-[11px] font-bold text-slate-800 mb-1">📦 Jumlah (Qty)</label>
+          <input type="number" id="input-qty" value="1" min="1" max="300" class="w-full px-2 py-1.5 text-xs font-bold border border-slate-300 rounded-lg bg-white text-center" />
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Kondisi Barang</label>
-          <select id="select-kondisi" onchange="updatePreview()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Kondisi</label>
+          <select id="select-kondisi" onchange="updatePreview()" class="w-full px-1.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
             <option value="Baik" selected>Baik (B)</option>
-            <option value="Rusak Ringan">Rusak Ringan (RR)</option>
-            <option value="Rusak Berat">Rusak Berat (RB)</option>
+            <option value="Rusak Ringan">Rusak Ringan</option>
+            <option value="Rusak Berat">Rusak Berat</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Sumber Dana</label>
+          <select id="select-dana" onchange="updatePreview()" class="w-full px-1.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
+            <option value="Dana BOS" selected>Dana BOS</option>
+            <option value="DAK Fisik">DAK Fisik</option>
+            <option value="Bantuan Pusat">Bantuan Pusat</option>
+            <option value="BOS Afirmasi">BOS Afirmasi</option>
+            <option value="APBD Lamsel">APBD Lamsel</option>
+            <option value="Dana Desa">Dana Desa</option>
+            <option value="Hibah">Hibah/Lainnya</option>
           </select>
         </div>
       </div>
 
-      <!-- 6. Sumber Dana & Lokasi -->
+      <!-- 8. Ukuran Ramping & Desain Stiker -->
       <div class="grid grid-cols-2 gap-2.5">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Sumber Dana</label>
-          <select id="select-dana" onchange="updatePreview()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
-            <option value="DAK Fisik" selected>DAK Fisik Pendidikan</option>
-            <option value="Bantuan Pusat">Bantuan Pemerintah Pusat</option>
-            <option value="Dana BOS">Dana BOS Reguler</option>
-            <option value="Dana BOS Afirmasi">Dana BOS Afirmasi</option>
-            <option value="APBD Lamsel">APBD Kab. Lamsel</option>
-            <option value="Dana Desa">Dana Desa (DD)</option>
-            <option value="Hibah / Lainnya">Hibah / Lainnya</option>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Ukuran Stiker Ramping</label>
+          <select id="select-ukuran" onchange="updateLayoutSettings()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
+            <option value="65x30" selected>Minimalis (65 x 30 mm)</option>
+            <option value="58x24">Ekstra Tipis (58 x 24 mm)</option>
+            <option value="75x35">Sedang Ramping (75 x 35 mm)</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Lokasi / Ruangan</label>
-          <input type="text" id="input-lokasi" value="Ruang Kelas 1" oninput="updatePreview()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg" />
+          <label class="block text-xs font-bold text-slate-700 mb-1">Model Stiker</label>
+          <select id="select-desain" onchange="updatePreview()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
+            <option value="pro-qr" selected>Profesional (QR Mini)</option>
+            <option value="pro-barcode">Profesional (Barcode)</option>
+            <option value="simple">Sederhana (Teks Ringkas)</option>
+          </select>
         </div>
       </div>
 
-      <!-- 7. Desain Stiker -->
-      <div>
-        <label class="block text-xs font-bold text-slate-700 mb-1">Desain Stiker</label>
-        <select id="select-desain" onchange="updatePreview()" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
-          <option value="pro-qr" selected>Profesional (QR Code)</option>
-          <option value="pro-barcode">Profesional (Barcode 1D)</option>
-          <option value="simple">Sederhana (Ringkas Teks)</option>
-        </select>
-      </div>
-
-      <!-- Tombol Tambah Massal -->
-      <button type="button" onclick="addMassToQueue()" class="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-lg shadow-md transition flex items-center justify-center gap-2">
-        <span>🚀 Tambah Sekaligus ke Antrean Cetak Massal</span>
+      <!-- Tombol Tambah ke Ruangan Aktif -->
+      <button type="button" onclick="addItemsToCurrentRoom()" class="w-full py-2.5 bg-red-700 hover:bg-red-800 text-white font-bold text-xs rounded-lg shadow transition flex items-center justify-center gap-2">
+        <span>➕ Tambahkan ke Daftar <span id="btn-room-name-label">Ruang Kelas 1</span></span>
       </button>
     </section>
 
-    <!-- KOLOM KANAN: LIVE PREVIEW & LEMBAR CETAK -->
+    <!-- KOLOM KANAN: LIVE PREVIEW & LEMBAR CETAK RUANGAN AKTIF -->
     <section class="lg:col-span-7 space-y-5">
 
       <!-- Live Preview -->
       <div class="no-print bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-        <div class="flex items-center justify-between mb-2.5">
-          <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Pratinjau Stiker Live</h2>
-          <span class="text-[11px] text-emerald-700 font-semibold">Ukuran Standar 85 x 45 mm</span>
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Pratinjau Stiker Minimalis (Lis Merah)</h2>
+          <span id="preview-size-label" class="text-[11px] text-red-700 font-bold">65 x 30 mm (Minimalis)</span>
         </div>
-        <div class="bg-slate-100 border border-dashed border-slate-300 rounded-xl p-5 flex items-center justify-center min-h-[150px]">
+        <div class="bg-slate-100 border border-dashed border-slate-300 rounded-xl p-5 flex items-center justify-center min-h-[120px]">
           <div id="live-preview-container"></div>
         </div>
       </div>
 
-      <!-- Daftar Antrean -->
-      <div class="no-print bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-2.5">
-        <div class="flex items-center justify-between">
-          <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Antrean Cetak (<span id="queue-count">0</span> Total Label)</h2>
-          <button type="button" onclick="clearQueue()" class="text-xs text-red-600 hover:underline font-semibold">Kosongkan Semua</button>
+      <!-- RINGKASAN ISI RUANGAN YANG SEDANG DIDATA -->
+      <div class="no-print bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
+              🚪 Isi Inventaris: <span id="active-room-title" class="text-red-700">Ruang Kelas 1</span>
+            </h2>
+            <p class="text-[11px] text-slate-500">Daftar jenis & jumlah barang yang sudah masuk untuk ruangan ini</p>
+          </div>
+          <button type="button" onclick="startNewRoomSession()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-lg transition">
+            🔄 Selesai & Mulai Ruangan Baru
+          </button>
         </div>
-        <div id="queue-list" class="max-h-48 overflow-y-auto divide-y divide-slate-100 border border-slate-200 rounded-lg text-xs"></div>
+
+        <!-- Ringkasan Jumlah Per Jenis Barang di Ruangan Ini -->
+        <div id="current-room-breakdown" class="flex flex-wrap gap-1.5 bg-slate-50 p-2.5 rounded-lg border border-slate-200 min-h-[42px] items-center">
+          <!-- Diisi via JS -->
+        </div>
       </div>
 
-      <!-- Area Lembar Cetak A4 -->
+      <!-- AREA LEMBAR SIAP CETAK (KHUSUS RUANGAN AKTIF) -->
       <div id="print-area-wrapper" class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-        <div class="no-print flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
-          <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Lembar Siap Cetak (A4)</h2>
-          <button type="button" onclick="window.print()" class="px-3 py-1 bg-emerald-700 text-white text-xs font-bold rounded shadow">🖨️ Cetak Semua</button>
+        <!-- Header Ruangan (Ikut Tercetak Rapi di Bagian Atas Kertas Stiker) -->
+        <div class="mb-3 pb-2 border-b-2 border-red-800 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <div class="text-xs font-extrabold text-slate-900 uppercase tracking-wide">
+              🚪 LABEL INVENTARIS — <span id="print-header-room" class="text-red-800">RUANG KELAS 1</span>
+            </div>
+            <div id="print-header-opd" class="text-[11px] font-semibold text-slate-600">UPTD SDN 1 KARYA MULYA SARI</div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded">
+              Total: <span id="room-sticker-count">0</span> Label
+            </span>
+            <button type="button" onclick="window.print()" class="no-print px-3.5 py-1.5 bg-red-700 hover:bg-red-800 text-white text-xs font-bold rounded-lg shadow">
+              🖨️ Cetak Ruangan Ini
+            </button>
+          </div>
         </div>
-        <div id="print-grid" class="flex flex-wrap gap-3 justify-start"></div>
+
+        <!-- Grid Stiker Ruangan Ini -->
+        <div id="print-grid" class="flex flex-wrap gap-2 justify-start"></div>
       </div>
 
     </section>
@@ -260,13 +356,21 @@
   <script>
     let kodeVersion = 'sederhana';
     let customLogoBase64 = localStorage.getItem('bmd_custom_logo') || '';
-    let labelQueue = JSON.parse(localStorage.getItem('bmd_queue_v7')) || [
-      { id: 1, opd: 'UPTD SDN 1 KARYA MULYA SARI', kode: '18.01.15-MJ-001', nama: 'Kursi Siswa Kayu', tahun: '2024', kondisi: 'Baik', lokasi: 'Ruang Kelas 1', dana: 'DAK Fisik', desain: 'pro-qr' }
+    // Antrean khusus untuk 1 ruangan aktif yang sedang didata
+    let roomItems = JSON.parse(localStorage.getItem('bmd_active_room_items_v1')) || [
+      { id: 1, opd: 'UPTD SDN 1 KARYA MULYA SARI', kode: '18.01.15-MJG-001', nama: 'Meja Kerja Guru', tahun: '2024', kondisi: 'Baik', lokasi: 'Ruang Kelas 1', dana: 'Dana BOS', desain: 'pro-qr' },
+      { id: 2, opd: 'UPTD SDN 1 KARYA MULYA SARI', kode: '18.01.15-MJS-001', nama: 'Meja Siswa', tahun: '2024', kondisi: 'Baik', lokasi: 'Ruang Kelas 1', dana: 'Dana BOS', desain: 'pro-qr' },
+      { id: 3, opd: 'UPTD SDN 1 KARYA MULYA SARI', kode: '18.01.15-MJS-002', nama: 'Meja Siswa', tahun: '2024', kondisi: 'Baik', lokasi: 'Ruang Kelas 1', dana: 'Dana BOS', desain: 'pro-qr' }
     ];
 
     window.addEventListener('DOMContentLoaded', () => {
       if (customLogoBase64) {
         applyLogoToUI(customLogoBase64);
+      }
+      // Pulihkan nomor urut terakhir jika ada
+      const savedUrut = localStorage.getItem('bmd_last_urut');
+      if (savedUrut) {
+        document.getElementById('input-urut').value = savedUrut;
       }
       generateKode();
       renderAll();
@@ -298,7 +402,47 @@
 
     function setInstansi(nama) {
       document.getElementById('input-opd').value = nama;
-      updatePreview();
+      updateRoomIdentity();
+    }
+
+    function getActiveRoomName() {
+      const sel = document.getElementById('select-ruangan').value;
+      if (sel === 'CUSTOM_ROOM') {
+        return document.getElementById('input-ruangan-manual').value.trim() || 'Ruang Lainnya';
+      }
+      return sel;
+    }
+
+    function onRuanganChange() {
+      const sel = document.getElementById('select-ruangan').value;
+      const customBox = document.getElementById('custom-room-box');
+      const manualInput = document.getElementById('input-ruangan-manual');
+
+      if (sel === 'CUSTOM_ROOM') {
+        customBox.classList.remove('hidden');
+        manualInput.focus();
+      } else {
+        customBox.classList.add('hidden');
+      }
+      updateRoomIdentity();
+    }
+
+    // Ketika nama ruangan atau nama sekolah diganti, perbarui label yang ada di lembar aktif
+    function updateRoomIdentity() {
+      const roomName = getActiveRoomName();
+      const opdName = document.getElementById('input-opd').value.trim() || 'UPTD SDN 1 KARYA MULYA SARI';
+
+      document.getElementById('btn-room-name-label').textContent = roomName;
+      document.getElementById('active-room-title').textContent = roomName;
+      document.getElementById('print-header-room').textContent = roomName;
+      document.getElementById('print-header-opd').textContent = opdName;
+
+      // Sinkronkan juga item yang sedang ada di lembar ruangan aktif ini
+      roomItems.forEach(item => {
+        item.lokasi = roomName;
+        item.opd = opdName;
+      });
+      saveAndRender();
     }
 
     function setKodeVersion(ver) {
@@ -309,13 +453,13 @@
       const badge = document.getElementById('kode-mode-badge');
 
       if (ver === 'sederhana') {
-        btnSimple.className = 'py-1.5 px-2 text-xs font-bold rounded-md bg-white text-emerald-800 shadow-sm transition';
+        btnSimple.className = 'py-1.5 px-2 text-xs font-bold rounded-md bg-white text-slate-900 shadow-sm transition';
         btnPro.className = 'py-1.5 px-2 text-xs font-semibold rounded-md text-slate-600 hover:text-slate-900 transition';
         wrapKec.style.opacity = '1';
         document.getElementById('select-kecamatan').disabled = false;
         badge.textContent = 'Format Sederhana';
       } else {
-        btnPro.className = 'py-1.5 px-2 text-xs font-bold rounded-md bg-white text-emerald-800 shadow-sm transition';
+        btnPro.className = 'py-1.5 px-2 text-xs font-bold rounded-md bg-white text-slate-900 shadow-sm transition';
         btnSimple.className = 'py-1.5 px-2 text-xs font-semibold rounded-md text-slate-600 hover:text-slate-900 transition';
         wrapKec.style.opacity = '0.45';
         document.getElementById('select-kecamatan').disabled = true;
@@ -324,10 +468,31 @@
       generateKode();
     }
 
+    function getSelectedCategoryCodes() {
+      const val = document.getElementById('select-kategori').value;
+      const parts = val.split('|');
+      if (parts[0] === 'CUSTOM') {
+        const shortCustom = (document.getElementById('input-custom-short').value.trim() || 'BRG').toUpperCase();
+        const longCustom = document.getElementById('input-custom-long').value.trim() || '02.02.09.01.01';
+        return { isCustom: true, kodeLengkap: longCustom, kodeSingkat: shortCustom, defaultNama: '' };
+      }
+      return { isCustom: false, kodeLengkap: parts[0], kodeSingkat: parts[1], defaultNama: parts[2] || '' };
+    }
+
     function onKategoriChange() {
-      const val = document.getElementById('select-kategori').value.split('|');
-      if (val[2]) {
-        document.getElementById('input-nama-barang').value = val[2].split('/')[0].trim();
+      const cat = getSelectedCategoryCodes();
+      const customBox = document.getElementById('custom-category-box');
+      const namaInput = document.getElementById('input-nama-barang');
+
+      if (cat.isCustom) {
+        customBox.classList.remove('hidden');
+        namaInput.value = '';
+        namaInput.focus();
+      } else {
+        customBox.classList.add('hidden');
+        if (cat.defaultNama) {
+          namaInput.value = cat.defaultNama.trim();
+        }
       }
       generateKode();
     }
@@ -340,83 +505,101 @@
 
     function generateKode() {
       const kec = document.getElementById('select-kecamatan').value;
-      const katParts = document.getElementById('select-kategori').value.split('|');
-      const kodeLengkap = katParts[0];
-      const kodeSingkat = katParts[1];
+      const cat = getSelectedCategoryCodes();
       const tahun = document.getElementById('input-tahun').value || '2024';
       const urut = String(document.getElementById('input-urut').value || '1').padStart(3, '0');
 
       const finalKode = kodeVersion === 'sederhana'
-        ? `18.01.${kec}-${kodeSingkat}-${urut}`
-        : `18.01.${kodeLengkap}.${tahun}.${urut}`;
+        ? `18.01.${kec}-${cat.kodeSingkat}-${urut}`
+        : `18.01.${cat.kodeLengkap}.${tahun}.${urut}`;
 
       document.getElementById('input-kode-final').value = finalKode;
       updatePreview();
     }
 
+    function getSizeConfig() {
+      const val = document.getElementById('select-ukuran').value;
+      const map = {
+        '65x30': { w: '65mm', h: '30mm', qr: 38, headPad: '2px 5px', bodyPad: '2px 5px', titleSize: '7px', subSize: '6px', codeSize: '7.5px', nameSize: '8px', metaSize: '6px', logoSize: '10px', label: '65 x 30 mm (Minimalis)' },
+        '58x24': { w: '58mm', h: '24mm', qr: 30, headPad: '1.5px 4px', bodyPad: '1.5px 4px', titleSize: '6px', subSize: '5.5px', codeSize: '6.8px', nameSize: '7px', metaSize: '5.5px', logoSize: '8px', label: '58 x 24 mm (Ekstra Tipis)' },
+        '75x35': { w: '75mm', h: '35mm', qr: 44, headPad: '3px 6px', bodyPad: '3px 6px', titleSize: '8px', subSize: '6.8px', codeSize: '8.5px', nameSize: '9px', metaSize: '6.8px', logoSize: '11px', label: '75 x 35 mm (Sedang Ramping)' }
+      };
+      return map[val] || map['65x30'];
+    }
+
+    function updateLayoutSettings() {
+      const cfg = getSizeConfig();
+      document.getElementById('preview-size-label').textContent = cfg.label;
+      renderAll();
+    }
+
     function getData() {
       return {
         opd: document.getElementById('input-opd').value.trim() || 'UPTD SDN 1 KARYA MULYA SARI',
-        nama: document.getElementById('input-nama-barang').value.trim() || 'Barang',
+        nama: document.getElementById('input-nama-barang').value.trim() || 'Barang Inventaris',
         tahun: document.getElementById('input-tahun').value.trim() || '2024',
         kondisi: document.getElementById('select-kondisi').value,
-        lokasi: document.getElementById('input-lokasi').value.trim() || '-',
+        lokasi: getActiveRoomName(),
         dana: document.getElementById('select-dana').value,
         desain: document.getElementById('select-desain').value
       };
     }
 
     function createStickerCard(item, uid) {
+      const cfg = getSizeConfig();
       const card = document.createElement('div');
-      card.className = 'bmd-sticker with-border rounded-sm shadow-xs';
-      card.style.width = '85mm';
-      card.style.height = '45mm';
+      card.className = 'bmd-sticker red-border rounded-xs';
+      card.style.width = cfg.w;
+      card.style.height = cfg.h;
 
       let badgeStyle = 'background:#dcfce7;color:#166534;';
       if (item.kondisi === 'Rusak Ringan') badgeStyle = 'background:#fef9c3;color:#854d0e;';
       if (item.kondisi === 'Rusak Berat') badgeStyle = 'background:#fee2e2;color:#991b1b;';
 
       const logoHtml = customLogoBase64 
-        ? `<img src="${customLogoBase64}" style="width:12px;height:12px;object-fit:contain;display:inline-block;vertical-align:middle;margin-right:2px;" />` 
-        : `🛡️`;
+        ? `<img src="${customLogoBase64}" style="width:${cfg.logoSize};height:${cfg.logoSize};object-fit:contain;display:inline-block;vertical-align:middle;margin-right:2px;" />` 
+        : `🏛️`;
 
       if (item.desain === 'simple') {
         card.innerHTML = `
-          <div style="background:#064e3b;color:#ffffff;padding:4px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:1.5px solid #fbbf24;">
-            <div style="font-size:9px;font-weight:800;text-transform:uppercase;display:flex;align-items:center;gap:2px;">${logoHtml} PEMKAB LAMPUNG SELATAN</div>
-            <div style="font-size:7.5px;font-weight:800;background:#fbbf24;color:#064e3b;padding:1px 4px;border-radius:2px;">INVENTARIS</div>
+          <div style="background:#b91c1c;color:#ffffff;padding:${cfg.headPad};display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #fbbf24;">
+            <div style="font-size:${cfg.titleSize};font-weight:800;text-transform:uppercase;display:flex;align-items:center;gap:2px;white-space:nowrap;overflow:hidden;">${logoHtml} PEMKAB LAMPUNG SELATAN</div>
+            <div style="font-size:5.5px;font-weight:800;background:#fbbf24;color:#7f1d1d;padding:0.5px 3px;border-radius:1.5px;shrink:0;">BMD</div>
           </div>
-          <div style="flex:1;padding:6px 10px;display:flex;flex-direction:column;justify-content:center;gap:2.5px;">
-            <div style="font-size:8.5px;font-weight:700;color:#334155;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.opd)}</div>
-            <div style="font-size:11px;font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.nama)}</div>
-            <div class="font-mono-code" style="font-size:10px;font-weight:800;color:#064e3b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Kode: ${escapeHtml(item.kode)}</div>
-            <div style="display:flex;justify-content:space-between;align-items:center;font-size:8px;font-weight:600;color:#475569;margin-top:2px;">
-              <span>Thn: <b>${escapeHtml(item.tahun)}</b> • ${escapeHtml(item.dana)}</span>
-              <span style="${badgeStyle}padding:0 4px;border-radius:2px;">${escapeHtml(item.kondisi)}</span>
+          <div style="flex:1;padding:${cfg.bodyPad};display:flex;flex-direction:column;justify-content:center;gap:1px;">
+            <div style="font-size:${cfg.subSize};font-weight:700;color:#475569;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.opd)}</div>
+            <div style="font-size:${cfg.nameSize};font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.nama)}</div>
+            <div class="font-mono-code" style="font-size:${cfg.codeSize};font-weight:800;color:#b91c1c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.kode)}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:${cfg.metaSize};font-weight:600;color:#475569;">
+              <span>${escapeHtml(item.lokasi)} • ${escapeHtml(item.tahun)}</span>
+              <span style="${badgeStyle}padding:0 2.5px;border-radius:1.5px;">${escapeHtml(item.kondisi)}</span>
             </div>
           </div>
         `;
       } else {
         card.innerHTML = `
-          <div style="background:#064e3b;color:#ffffff;padding:4px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:1.5px solid #fbbf24;">
-            <div style="line-height:1.1;overflow:hidden;">
-              <div style="font-size:9px;font-weight:800;text-transform:uppercase;display:flex;align-items:center;gap:2px;">${logoHtml} PEMKAB LAMPUNG SELATAN</div>
-              <div style="font-size:8px;font-weight:600;color:#fde68a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.opd)}</div>
+          <div style="background:#b91c1c;color:#ffffff;padding:${cfg.headPad};display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #fbbf24;">
+            <div style="line-height:1.05;overflow:hidden;">
+              <div style="font-size:${cfg.titleSize};font-weight:800;text-transform:uppercase;display:flex;align-items:center;gap:2px;white-space:nowrap;">${logoHtml} PEMKAB LAMPUNG SELATAN</div>
+              <div style="font-size:${cfg.subSize};font-weight:600;color:#fef08a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.opd)}</div>
             </div>
-            <div style="font-size:7px;font-weight:800;background:#fbbf24;color:#064e3b;padding:1px 4px;border-radius:2px;shrink:0;">BMD 18.01</div>
+            <div style="font-size:5.5px;font-weight:800;background:#fbbf24;color:#7f1d1d;padding:0.5px 3px;border-radius:1.5px;shrink:0;">18.01</div>
           </div>
-          <div style="flex:1;padding:5px 8px;display:flex;align-items:center;justify-content:space-between;gap:6px;overflow:hidden;">
-            <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2.5px;">
-              <div style="background:#f1f5f9;border:1px solid #cbd5e1;padding:1.5px 4px;border-radius:2px;">
-                <div style="font-size:6.5px;color:#475569;font-weight:700;">KODE BARANG</div>
-                <div class="font-mono-code" style="font-size:9.5px;font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.kode)}</div>
+          <div style="flex:1;padding:${cfg.bodyPad};display:flex;align-items:center;justify-content:space-between;gap:4px;overflow:hidden;">
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:1px;">
+              <div class="font-mono-code" style="font-size:${cfg.codeSize};font-weight:800;color:#b91c1c;background:#fef2f2;border:0.5px solid #fecaca;padding:0.5px 3px;border-radius:1.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                ${escapeHtml(item.kode)}
               </div>
-              <div style="font-size:10.5px;font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.nama)}</div>
-              <div style="display:flex;align-items:center;gap:4px;font-size:8px;font-weight:600;color:#334155;">
+              <div style="font-size:${cfg.nameSize};font-weight:800;color:#0f172a;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                ${escapeHtml(item.nama)}
+              </div>
+              <div style="display:flex;align-items:center;gap:3px;font-size:${cfg.metaSize};font-weight:600;color:#334155;">
                 <span>Thn: <b>${escapeHtml(item.tahun)}</b></span> | 
-                <span style="${badgeStyle}padding:0 3px;border-radius:2px;font-weight:700;">${escapeHtml(item.kondisi)}</span>
+                <span style="${badgeStyle}padding:0 2.5px;border-radius:1.5px;font-weight:700;">${escapeHtml(item.kondisi)}</span>
               </div>
-              <div style="font-size:7.5px;color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Lok: <b>${escapeHtml(item.lokasi)}</b> • ${escapeHtml(item.dana)}</div>
+              <div style="font-size:${cfg.metaSize};color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                <b>${escapeHtml(item.lokasi)}</b> • ${escapeHtml(item.dana)}
+              </div>
             </div>
             <div id="code-${uid}" style="shrink:0;display:flex;align-items:center;justify-content:center;"></div>
           </div>
@@ -429,11 +612,11 @@
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             el.appendChild(svg);
             try {
-              JsBarcode(svg, item.kode, { format: 'CODE128', width: 1, height: 32, displayValue: false, margin: 0 });
+              JsBarcode(svg, item.kode, { format: 'CODE128', width: 0.85, height: 22, displayValue: false, margin: 0 });
             } catch (e) {}
           } else {
-            const payload = `PEMKAB LAMPUNG SELATAN\nUnit: ${item.opd}\nKode: ${item.kode}\nBarang: ${item.nama}\nTahun: ${item.tahun} | Kondisi: ${item.kondisi}\nLokasi: ${item.lokasi}\nSumber Dana: ${item.dana}`;
-            new QRCode(el, { text: payload, width: 54, height: 54, colorDark: '#0f172a', colorLight: '#ffffff' });
+            const payload = `PEMKAB LAMPUNG SELATAN\nUnit: ${item.opd}\nRuangan: ${item.lokasi}\nKode: ${item.kode}\nBarang: ${item.nama}\nTahun: ${item.tahun} | Kondisi: ${item.kondisi}\nSumber Dana: ${item.dana}`;
+            new QRCode(el, { text: payload, width: cfg.qr, height: cfg.qr, colorDark: '#0f172a', colorLight: '#ffffff' });
           }
         }, 0);
       }
@@ -451,25 +634,29 @@
       container.appendChild(createStickerCard(dummyItem, 'live'));
     }
 
-    function addMassToQueue() {
+    function addItemsToCurrentRoom() {
       const baseData = getData();
       const qty = Math.max(1, parseInt(document.getElementById('input-qty').value || '1', 10));
-      
       const kec = document.getElementById('select-kecamatan').value;
-      const katParts = document.getElementById('select-kategori').value.split('|');
-      const kodeLengkap = katParts[0];
-      const kodeSingkat = katParts[1];
+      const cat = getSelectedCategoryCodes();
       const tahun = baseData.tahun;
-      
+      const manualCodeVal = document.getElementById('input-kode-final').value.trim();
+
       let currentUrut = parseInt(document.getElementById('input-urut').value || '1', 10);
 
       for (let i = 0; i < qty; i++) {
         const urutStr = String(currentUrut).padStart(3, '0');
-        const kodeFinal = kodeVersion === 'sederhana'
-          ? `18.01.${kec}-${kodeSingkat}-${urutStr}`
-          : `18.01.${kodeLengkap}.${tahun}.${urutStr}`;
+        let kodeFinal = '';
 
-        labelQueue.push({
+        if (qty === 1 && manualCodeVal) {
+          kodeFinal = manualCodeVal;
+        } else {
+          kodeFinal = kodeVersion === 'sederhana'
+            ? `18.01.${kec}-${cat.kodeSingkat}-${urutStr}`
+            : `18.01.${cat.kodeLengkap}.${tahun}.${urutStr}`;
+        }
+
+        roomItems.push({
           id: Date.now() + Math.random() + i,
           opd: baseData.opd,
           kode: kodeFinal,
@@ -485,57 +672,81 @@
       }
 
       document.getElementById('input-urut').value = currentUrut;
+      localStorage.setItem('bmd_last_urut', currentUrut);
       generateKode();
       saveAndRender();
     }
 
-    function removeFromQueue(index) {
-      labelQueue.splice(index, 1);
+    function removeBarangGroupFromRoom(namaBarang) {
+      roomItems = roomItems.filter(item => item.nama !== namaBarang);
       saveAndRender();
     }
 
-    function clearQueue() {
-      if (confirm('Kosongkan semua antrean?')) { labelQueue = []; saveAndRender(); }
+    function startNewRoomSession() {
+      if (roomItems.length > 0 && !confirm('Lembar cetak ruangan ini akan dikosongkan agar Anda bisa mulai mendata ruangan berikutnya (Nomor urut kode barang tetap melanjutkan). Lanjutkan?')) {
+        return;
+      }
+      roomItems = [];
+      saveAndRender();
+      // Fokuskan ke pilihan ruangan agar pengguna langsung memilih ruang berikutnya
+      const selRuang = document.getElementById('select-ruangan');
+      selRuang.focus();
     }
 
     function saveAndRender() {
-      localStorage.setItem('bmd_queue_v7', JSON.stringify(labelQueue));
+      localStorage.setItem('bmd_active_room_items_v1', JSON.stringify(roomItems));
       renderAll();
     }
 
     function renderAll() {
-      updatePreview();
-      const list = document.getElementById('queue-list');
-      document.getElementById('queue-count').textContent = labelQueue.length;
-      document.getElementById('total-print-badge').textContent = labelQueue.length;
+      const roomName = getActiveRoomName();
+      const opdName = document.getElementById('input-opd').value.trim() || 'UPTD SDN 1 KARYA MULYA SARI';
 
-      if (labelQueue.length === 0) {
-        list.innerHTML = `<div class="p-4 text-center text-slate-400">Antrean kosong.</div>`;
+      document.getElementById('btn-room-name-label').textContent = roomName;
+      document.getElementById('active-room-title').textContent = roomName;
+      document.getElementById('print-header-room').textContent = roomName;
+      document.getElementById('print-header-opd').textContent = opdName;
+      document.getElementById('total-print-badge').textContent = roomItems.length;
+      document.getElementById('room-sticker-count').textContent = roomItems.length;
+
+      updatePreview();
+
+      // Render ringkasan jumlah per jenis barang di ruangan aktif
+      const breakdownEl = document.getElementById('current-room-breakdown');
+      if (roomItems.length === 0) {
+        breakdownEl.innerHTML = `<span class="text-xs text-slate-400">Belum ada barang di ruangan <b>${escapeHtml(roomName)}</b>. Silakan masukkan jenis barang & jumlahnya di sebelah kiri.</span>`;
       } else {
-        list.innerHTML = labelQueue.map((item, idx) => `
-          <div class="p-2.5 flex items-center justify-between gap-2 hover:bg-slate-50">
-            <div>
-              <div class="font-mono-code font-bold text-emerald-900">${escapeHtml(item.kode)}</div>
-              <div class="font-semibold text-slate-800">${escapeHtml(item.nama)} <span class="text-slate-400 font-normal">(${item.tahun} - ${item.kondisi})</span></div>
-              <div class="text-[10px] text-slate-500">${escapeHtml(item.opd)} • ${escapeHtml(item.lokasi)} • ${escapeHtml(item.dana)}</div>
-            </div>
-            <button onclick="removeFromQueue(${idx})" class="px-2 py-1 bg-red-50 text-red-600 font-bold rounded hover:bg-red-100">✕</button>
-          </div>
+        const counts = {};
+        roomItems.forEach(item => {
+          counts[item.nama] = (counts[item.nama] || 0) + 1;
+        });
+
+        breakdownEl.innerHTML = Object.entries(counts).map(([nama, jml]) => `
+          <span class="inline-flex items-center gap-1.5 bg-white border border-slate-300 text-slate-800 px-2.5 py-1 rounded-md text-xs font-semibold shadow-2xs">
+            <span><b class="text-red-700">${jml}x</b> ${escapeHtml(nama)}</span>
+            <button type="button" onclick="removeBarangGroupFromRoom('${escapeHtml(nama).replace(/'/g, "\\'")}')" title="Hapus jenis barang ini dari ruangan" class="text-slate-400 hover:text-red-600 font-bold ml-1">✕</button>
+          </span>
         `).join('');
       }
 
+      // Render grid stiker siap cetak untuk ruangan aktif
       const grid = document.getElementById('print-grid');
       grid.innerHTML = '';
-      labelQueue.forEach((item, idx) => {
+      roomItems.forEach((item, idx) => {
         grid.appendChild(createStickerCard(item, `print-${idx}-${item.id}`));
       });
     }
 
     function exportCSV() {
-      if (labelQueue.length === 0) return alert('Antrean kosong');
-      const csv = 'OPD,Kode,Barang,Tahun,Kondisi,Lokasi,SumberDana\n' + labelQueue.map(i => `"${i.opd}","${i.kode}","${i.nama}","${i.tahun}","${i.kondisi}","${i.lokasi}","${i.dana}"`).join('\n');
+      if (roomItems.length === 0) return alert('Daftar ruangan masih kosong.');
+      const roomName = getActiveRoomName().replace(/[^a-zA-Z0-9_-]/g, '_');
+      const csv = 'Ruangan,OPD,KodeBMD,NamaBarang,Tahun,Kondisi,SumberDana\n' +
+        roomItems.map(i => `"${i.lokasi}","${i.opd}","${i.kode}","${i.nama}","${i.tahun}","${i.kondisi}","${i.dana}"`).join('\n');
       const blob = new Blob([csv], { type: 'text/csv' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'label-bmd-lamsel.csv'; a.click();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `KIR-Label-${roomName}.csv`;
+      a.click();
     }
 
     function escapeHtml(str) {
