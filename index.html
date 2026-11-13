@@ -37,14 +37,13 @@
 </head>
 <body class="text-slate-800 antialiased">
 
-  <!-- HEADER DENGAN LOGO PEMKAB LAMSEL -->
+  <!-- HEADER -->
   <header class="no-print bg-emerald-900 text-white shadow sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-lg bg-amber-400 text-emerald-950 flex items-center justify-center font-black shadow-inner border border-amber-300">
-          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4zm0 3.18l6 2.67v4.15c0 4.22-2.78 8.16-6 9.33-3.22-1.17-6-5.11-6-9.33V7.85l6-2.67zM12 8a3.5 3.5 0 100 7 3.5 3.5 0 000-7z"/>
-          </svg>
+        <div id="header-logo-container" class="w-10 h-10 rounded-lg bg-amber-400 text-emerald-950 flex items-center justify-center font-black shadow-inner overflow-hidden border border-amber-300">
+          <img id="header-logo-img" src="" alt="Logo" class="w-full h-full object-contain hidden" />
+          <span id="header-logo-fallback" class="text-xs">🏛️</span>
         </div>
         <div>
           <div class="flex items-center gap-2">
@@ -71,8 +70,15 @@
     <!-- KOLOM KIRI: FORM INPUT -->
     <section class="no-print lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3.5">
       <div class="border-b border-slate-100 pb-2.5 flex items-center justify-between">
-        <h2 class="text-xs font-extrabold text-emerald-900 uppercase tracking-wider">Pengaturan & Input Barang Masal</h2>
+        <h2 class="text-xs font-extrabold text-emerald-900 uppercase tracking-wider">Pengaturan & Input Barang</h2>
         <button type="button" onclick="setInstansi('UPTD SDN 1 KARYA MULYA SARI')" class="text-[10px] px-2 py-0.5 bg-slate-100 hover:bg-emerald-50 text-slate-700 rounded font-medium">Reset Sekolah</button>
+      </div>
+
+      <!-- UPLOAD LOGO PEMDA -->
+      <div class="bg-emerald-50/60 border border-emerald-200 p-2.5 rounded-lg">
+        <label class="block text-xs font-bold text-emerald-900 mb-1">🖼️ Unggah Logo Pemda Lampung Selatan</label>
+        <input type="file" id="input-logo-file" accept="image/*" onchange="handleLogoUpload(event)" class="w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-emerald-700 file:text-white hover:file:bg-emerald-800 cursor-pointer" />
+        <p class="text-[10px] text-emerald-700 mt-1">Pilih file logo (.png / .jpg) yang ingin ditampilkan pada stiker label.</p>
       </div>
 
       <!-- 1. Identitas Sekolah / OPD -->
@@ -152,7 +158,7 @@
         <input type="text" id="input-kode-final" value="18.01.15-LP-001" readonly class="w-full px-2.5 py-1 text-xs font-mono-code font-bold bg-white border border-emerald-400 rounded text-emerald-950" />
       </div>
 
-      <!-- 5. Nama Barang, Tahun & Jumlah Cetak Massal (QTY) -->
+      <!-- 5. Nama Barang, Tahun & Jumlah Qty -->
       <div class="grid grid-cols-3 gap-2.5">
         <div class="col-span-2">
           <label class="block text-xs font-bold text-slate-700 mb-1">Nama / Merk Barang</label>
@@ -253,14 +259,42 @@
 
   <script>
     let kodeVersion = 'sederhana';
-    let labelQueue = JSON.parse(localStorage.getItem('bmd_queue_v6')) || [
+    let customLogoBase64 = localStorage.getItem('bmd_custom_logo') || '';
+    let labelQueue = JSON.parse(localStorage.getItem('bmd_queue_v7')) || [
       { id: 1, opd: 'UPTD SDN 1 KARYA MULYA SARI', kode: '18.01.15-MJ-001', nama: 'Kursi Siswa Kayu', tahun: '2024', kondisi: 'Baik', lokasi: 'Ruang Kelas 1', dana: 'DAK Fisik', desain: 'pro-qr' }
     ];
 
     window.addEventListener('DOMContentLoaded', () => {
+      if (customLogoBase64) {
+        applyLogoToUI(customLogoBase64);
+      }
       generateKode();
       renderAll();
     });
+
+    function handleLogoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        customLogoBase64 = e.target.result;
+        localStorage.setItem('bmd_custom_logo', customLogoBase64);
+        applyLogoToUI(customLogoBase64);
+        updatePreview();
+        renderAll();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function applyLogoToUI(base64) {
+      const img = document.getElementById('header-logo-img');
+      const fallback = document.getElementById('header-logo-fallback');
+      if (img && fallback) {
+        img.src = base64;
+        img.classList.remove('hidden');
+        fallback.classList.add('hidden');
+      }
+    }
 
     function setInstansi(nama) {
       document.getElementById('input-opd').value = nama;
@@ -342,12 +376,14 @@
       if (item.kondisi === 'Rusak Ringan') badgeStyle = 'background:#fef9c3;color:#854d0e;';
       if (item.kondisi === 'Rusak Berat') badgeStyle = 'background:#fee2e2;color:#991b1b;';
 
-      const logoSvg = `<svg style="width:11px;height:11px;display:inline-block;vertical-align:middle;margin-right:2px;" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4z"/></svg>`;
+      const logoHtml = customLogoBase64 
+        ? `<img src="${customLogoBase64}" style="width:12px;height:12px;object-fit:contain;display:inline-block;vertical-align:middle;margin-right:2px;" />` 
+        : `🛡️`;
 
       if (item.desain === 'simple') {
         card.innerHTML = `
           <div style="background:#064e3b;color:#ffffff;padding:4px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:1.5px solid #fbbf24;">
-            <div style="font-size:9px;font-weight:800;text-transform:uppercase;display:flex;align-items:center;">${logoSvg} PEMKAB LAMPUNG SELATAN</div>
+            <div style="font-size:9px;font-weight:800;text-transform:uppercase;display:flex;align-items:center;gap:2px;">${logoHtml} PEMKAB LAMPUNG SELATAN</div>
             <div style="font-size:7.5px;font-weight:800;background:#fbbf24;color:#064e3b;padding:1px 4px;border-radius:2px;">INVENTARIS</div>
           </div>
           <div style="flex:1;padding:6px 10px;display:flex;flex-direction:column;justify-content:center;gap:2.5px;">
@@ -364,7 +400,7 @@
         card.innerHTML = `
           <div style="background:#064e3b;color:#ffffff;padding:4px 8px;display:flex;justify-content:space-between;align-items:center;border-bottom:1.5px solid #fbbf24;">
             <div style="line-height:1.1;overflow:hidden;">
-              <div style="font-size:9px;font-weight:800;text-transform:uppercase;display:flex;align-items:center;">${logoSvg} PEMKAB LAMPUNG SELATAN</div>
+              <div style="font-size:9px;font-weight:800;text-transform:uppercase;display:flex;align-items:center;gap:2px;">${logoHtml} PEMKAB LAMPUNG SELATAN</div>
               <div style="font-size:8px;font-weight:600;color:#fde68a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.opd)}</div>
             </div>
             <div style="font-size:7px;font-weight:800;background:#fbbf24;color:#064e3b;padding:1px 4px;border-radius:2px;shrink:0;">BMD 18.01</div>
@@ -427,7 +463,6 @@
       
       let currentUrut = parseInt(document.getElementById('input-urut').value || '1', 10);
 
-      // Loop untuk pembuatan nomor urut beruntun secara otomatis
       for (let i = 0; i < qty; i++) {
         const urutStr = String(currentUrut).padStart(3, '0');
         const kodeFinal = kodeVersion === 'sederhana'
@@ -449,7 +484,6 @@
         currentUrut++;
       }
 
-      // Update nomor urut di form otomatis agar siap untuk input barang berikutnya
       document.getElementById('input-urut').value = currentUrut;
       generateKode();
       saveAndRender();
@@ -465,7 +499,7 @@
     }
 
     function saveAndRender() {
-      localStorage.setItem('bmd_queue_v6', JSON.stringify(labelQueue));
+      localStorage.setItem('bmd_queue_v7', JSON.stringify(labelQueue));
       renderAll();
     }
 
